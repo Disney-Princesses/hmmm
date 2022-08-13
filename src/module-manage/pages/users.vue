@@ -167,6 +167,9 @@ export default {
 </script>
 
 <style scoped lang="less">
+.box-card {
+  margin: 20px;
+}
 .headerSearch {
   button {
     width: 56px;
