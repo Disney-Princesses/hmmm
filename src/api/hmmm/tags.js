@@ -19,8 +19,8 @@ export const simple = (data) => createAPI("/tags/simple", "get", data);
 export const detail = (data) => createAPI(`/tags/${data.id}`, "get", data);
 
 // 标签添加
-export const add = (subjectID, tagName) =>
-  createAPI("/tags", "post", { subjectID, tagName });
+export const add = data =>
+  createAPI("/tags", "post", data);
 
 // 标签修改
 export const update = (data) => createAPI(`/tags/${data.id}`, "put", data);

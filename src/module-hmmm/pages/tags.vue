@@ -2,7 +2,6 @@
   <el-card class="box-card">
     <!-- 头部搜索 -->
     <CommonHeader
-      firstLabel="标签名称"
       @search="searchFn"
       @addEvent="dialogVisible = true"
     ></CommonHeader>
@@ -23,11 +22,11 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="{ row }">
-          <el-button type="text">{{
+          <el-button type="text" @click="changeState(row)">{{
             row.state === 0 ? "启用" : "禁用"
           }}</el-button>
-          <el-button type="text" :disabled="row.state === 1">修改</el-button>
-          <el-button type="text" :disabled="row.state === 1">删除</el-button>
+          <el-button type="text" :disabled="row.state === 1"  @click="changeTags(row)">修改</el-button>
+          <el-button type="text" :disabled="row.state === 1" @click="deleteFn(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -40,13 +39,11 @@
     ></Pagination>
 
     <!-- 弹出框 -->
-    <SubjectDialog
-      v-if="dialogVisible"
+    <TagsDialog
+       v-if="dialogVisible"
       :dialogVisible.sync="dialogVisible"
-      addLabel="标签名称"
-      placeholder="请输入标签名称"
-      @onSave="saveFn"
-    ></SubjectDialog>
+      :tochange = 'toChangeData'
+    ></TagsDialog>
   </el-card>
 </template>
 
@@ -54,8 +51,8 @@
 import CommonHeader from "@/module-hmmm/components/CommonHeader";
 import TotalCount from "@/module-hmmm/components/TotalCount";
 import Pagination from "@/module-hmmm/components/Pagination";
-import SubjectDialog from "@/module-hmmm/components/SubjectDialog";
-import { list, add } from "@/api/hmmm/tags";
+import TagsDialog from "@/module-hmmm/components/TagsDialog";
+import { list,changeState,remove  } from "@/api/hmmm/tags";
 import dayjs from "dayjs";
 export default {
   data() {
@@ -66,13 +63,14 @@ export default {
       pages: 0,
       pagesize: 10,
       dialogVisible: false,
+      toChangeData: {},
     };
   },
   components: {
     CommonHeader,
     TotalCount,
     Pagination,
-    SubjectDialog
+    TagsDialog
   },
   created() {
     this.getTags();
@@ -90,7 +88,7 @@ export default {
     // 获取学科目录数据
     async getTags() {
       const { data } = await list({ page: this.page, pagesize: this.pagesize });
-      // console.log(data);
+      console.log(data);
       this.tagsData = data.items;
       this.counts = data.counts;
     },
@@ -122,10 +120,27 @@ export default {
       this.tagsData = data.items;
       this.counts = data.counts;
     },
-    // 确认新增
-    async saveFn(val) {
-      await add(val.subjectId, val.name);
-      this.$message.success("添加成功");
+    // 状态修改
+    async changeState(row) {
+      console.log(row);
+      if (row.state === 0) {
+        row.state = 1;
+      } else if (row.state === 1) {
+        row.state = 0;
+      }
+      await changeState(row);
+      this.$message.success("标签状态修改成功");
+    },
+     // 标签修改
+    async changeTags(row) {
+      console.log(row);
+      this.toChangeData = row;
+      this.dialogVisible = true;
+    },
+    // 删除
+    async deleteFn(row) {
+      await remove(row);
+      this.$message.success("删除成功");
       this.getTags();
     },
   },

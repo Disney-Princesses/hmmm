@@ -20,8 +20,8 @@ export const detail = (data) =>
   createAPI(`/directorys/${data.id}`, "get", data);
 
 // 目录添加
-export const add = (subjectID, directoryName) =>
-  createAPI("/directorys", "post", { subjectID, directoryName });
+export const add = data =>
+  createAPI("/directorys", "post", data);
 
 // 目录修改
 export const update = (data) =>

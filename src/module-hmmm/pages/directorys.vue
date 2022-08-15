@@ -50,18 +50,11 @@
     ></Pagination>
 
     <!-- 弹出框 -->
-    <SubjectDialog
+    <DirectoryDialog
       v-if="dialogVisible"
       :dialogVisible.sync="dialogVisible"
-      @onSave="saveFn"
-    ></SubjectDialog>
-    <!-- 修改弹出框组件 -->
-    <ChangeDialog
-      v-if="changeVisible"
-      :changeVisible.sync="changeVisible"
-      @changeSave="changeSave"
-      :changedata="toChangeData"
-    ></ChangeDialog>
+      :tochange = 'toChangeData'
+    ></DirectoryDialog>
   </el-card>
 </template>
 
@@ -69,9 +62,8 @@
 import CommonHeader from "@/module-hmmm/components/CommonHeader";
 import TotalCount from "@/module-hmmm/components/TotalCount";
 import Pagination from "@/module-hmmm/components/Pagination";
-import SubjectDialog from "@/module-hmmm/components/SubjectDialog";
-import ChangeDialog from "@/module-hmmm/components/ChangeDialog";
-import { list, add, changeState, update, remove } from "@/api/hmmm/directorys";
+import DirectoryDialog from "@/module-hmmm/components/DirectoryDialog";
+import { list,changeState,remove } from "@/api/hmmm/directorys";
 import dayjs from "dayjs";
 export default {
   data() {
@@ -82,7 +74,6 @@ export default {
       pages: 0,
       pagesize: 10,
       dialogVisible: false,
-      changeVisible: false,
       toChangeData: {},
     };
   },
@@ -90,8 +81,7 @@ export default {
     CommonHeader,
     TotalCount,
     Pagination,
-    SubjectDialog,
-    ChangeDialog,
+    DirectoryDialog,
   },
   created() {
     this.getDirectorys();
@@ -142,12 +132,6 @@ export default {
       this.directoryData = data.items;
       this.counts = data.counts;
     },
-    // 新增确认
-    async saveFn(val) {
-      await add(val.subjectId, val.name);
-      this.$message.success("添加成功");
-      this.getDirectorys();
-    },
     // 状态修改
     async changeState(row) {
       console.log(row);
@@ -162,13 +146,7 @@ export default {
     // 目录修改
     async changeDirectory(row) {
       this.toChangeData = row;
-      this.changeVisible = true;
-    },
-    // 目录修改确认
-    async changeSave(val) {
-      await update(val);
-      this.$message.success("目录修改成功");
-       this.getDirectorys();
+      this.dialogVisible = true;
     },
     // 删除
     async deleteFn(row) {

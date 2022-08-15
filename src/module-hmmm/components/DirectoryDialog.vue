@@ -6,24 +6,24 @@
     @close="$emit('update:dialogVisible', false)"
   >
     <el-form ref="form" :model="form" :rules="formRules" label-width="80px">
-      <el-form-item label="所属学科" prop="subjectId">
+      <el-form-item label="所属学科" prop="subjectID">
         <el-select
-          v-model="form.subjectId"
+          v-model="form.subjectID"
           placeholder="请选择"
           style="width: 100%"
         >
           <el-option
             :label="item.subjectName"
-            :value="item.subjectID"
+            :value="item.id"
             v-for="(item, index) in selectData"
             :key="index"
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item :label="addLabel" prop="name">
+      <el-form-item label="目录名称" prop="directoryName">
         <el-input
-          v-model.trim="form.name"
-          :placeholder="placeholder"
+          v-model.trim="form.directoryName"
+          placeholder="请输入目录名称"
         ></el-input>
       </el-form-item>
     </el-form>
@@ -35,26 +35,27 @@
 </template>
 
 <script>
-import { list } from "@/api/hmmm/directorys";
+import {list } from '@/api/hmmm/subjects'
+import {add, update } from "@/api/hmmm/directorys";
 export default {
   data() {
     return {
       form: {
-        subjectId: "",
-        name: "",
+        subjectID: "",
+        directoryName: "",
       },
       formRules: {
-        subjectId: [
+        subjectID: [
           {
             required: true,
             message: `请选择所属学科`,
             trigger: "change",
           },
         ],
-        name: [
+        directoryName: [
           {
             required: true,
-            message: `请输入${this.addLabel}`,
+            message: `请输入目录名称`,
             trigger: "blur",
           },
         ],
@@ -67,37 +68,51 @@ export default {
       type: Boolean,
       default: false,
     },
-    titleName: {
-      type: String,
-      default: "新增目录",
+    tochange: {
+      type: Object,
+      default: () => {},
     },
-    addLabel: {
-      type: String,
-      default: "目录名称",
+  },
+  computed: {
+    titleName() {
+      if (this.tochange.id) {
+        return "修改目录";
+      }
+      return "新增目录";
     },
-    placeholder: {
-      type: String,
-      default: "请输入目录名称",
-    }
   },
   created() {
-    this.getSubjectList()
+    this.getSubjectList();
+    if (this.tochange.id) {
+      this.form.subjectID = this.tochange.subjectID;
+      this.form.directoryName = this.tochange.directoryName;
+      this.form.id = this.tochange.id;
+    }
   },
 
   methods: {
     // 获取学科列表
     async getSubjectList() {
       const { data } = await list();
+      console.log(data);
       this.selectData = data.items;
     },
     // 确认
     async onSave() {
       await this.$refs.form.validate();
-      console.log(this.form);
-      this.$emit("onSave", this.form);
+      if (this.tochange.id) {
+        // 修改
+        await update(this.form);
+        this.$message.success("修改目录成功");
+      } else {
+        // 新增
+        await add(this.form);
+        this.$message.success("添加成功");
+      }
       this.$emit("update:dialogVisible", false);
+      this.$parent.$options.parent.getDirectorys()
       // 表单清空
-      this.$refs.form.resetFields();
+      this.$refs.form.resetField();
     },
   },
 };
