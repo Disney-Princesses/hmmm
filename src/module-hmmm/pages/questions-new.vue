@@ -131,8 +131,14 @@
             </quill-editor>
           </el-form-item>
           <!-- 选项 -->
-          <el-form-item label="选项：" prop="options" style="margin-top: 50px">
-            <el-radio-group v-model="radio">
+          <el-form-item
+            label="选项："
+            prop="options"
+            style="margin-top: 50px"
+            v-if="formData.questionType !== 3"
+          >
+            <!-- 单选 -->
+            <el-radio-group v-model="radio" v-if="formData.questionType === 1">
               <div
                 class="option_item"
                 v-for="(item, index) in formData.options"
@@ -144,12 +150,24 @@
                   style="position: relative"
                 >
                   {{ item.code + "：" }}
-                  <el-input v-model="item.title" placeholder="请输入内容">
+                  <el-input
+                    style="width: 240px"
+                    v-model="item.title"
+                    placeholder="请输入内容"
+                  >
                   </el-input>
                   <el-upload
-                    action="https://jsonplaceholder.typicode.com/posts/"
+                    v-loading="imgLoading"
+                    element-loading-text="上传中"
+                    element-loading-spinner="el-icon-loading"
+                    element-loading-background="rgba(0, 0, 0, 0.8)"
+                    action="#"
                     class="avatar-uploader"
                     :show-file-list="false"
+                    :http-request="onRequest"
+                    :before-upload="beforeAvatarUpload"
+                    :on-success="handleAvatarSuccess"
+                    @click.native="saveImgIndex(index)"
                   >
                     <img v-if="item.img" :src="item.img" class="avatar" />
                     <span v-else>上传图片</span>
@@ -159,6 +177,43 @@
               </div>
               <el-button type="danger" disabled>+增加选项与答案</el-button>
             </el-radio-group>
+
+            <!-- 多选 -->
+            <template v-if="formData.questionType === 2">
+              <div
+                class="option_item"
+                v-for="(item, index) in formData.options"
+                :key="index"
+              >
+                <el-checkbox v-model="item.isRight" style="position: relative">
+                  {{ item.code + "：" }}
+                  <el-input
+                    style="width: 240px"
+                    v-model="item.title"
+                    placeholder="请输入内容"
+                  >
+                  </el-input>
+                  <el-upload
+                    v-loading="imgLoading"
+                    element-loading-text="上传中,请稍等"
+                    element-loading-spinner="el-icon-loading"
+                    element-loading-background="rgba(0, 0, 0, 0.8)"
+                    action="#"
+                    class="avatar-uploader"
+                    :show-file-list="false"
+                    :http-request="onRequest"
+                    :before-upload="beforeAvatarUpload"
+                    :on-success="handleAvatarSuccess"
+                    @click.native="saveImgIndex(index)"
+                  >
+                    <img v-if="item.img" :src="item.img" class="avatar" />
+                    <span v-else>上传图片</span>
+                    <i class="el-icon-circle-close close-icon"></i>
+                  </el-upload>
+                </el-checkbox>
+              </div>
+              <el-button type="danger" @click="addSelect">+增加选项与答案</el-button>
+            </template>
           </el-form-item>
           <!-- 解析视频 -->
           <el-form-item label="解析视频：" prop="videoURL">
@@ -198,7 +253,7 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary">确认提交</el-button>
+            <el-button type="primary" @click="onCommit">确认提交</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -212,6 +267,11 @@ import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
 import { quillEditor } from "vue-quill-editor";
+import COS from "cos-js-sdk-v5";
+var cos = new COS({
+  SecretId: "AKIDnRt75qSqytZBdqmTuFRQClAML6ez66uU",
+  SecretKey: "PbZKsDLGzTiiW7VgfQwFOK4bw4xa0CD2",
+});
 import { simple as simpleSubjects } from "@/api/hmmm/subjects.js";
 import { simple as simpleDirectory } from "@/api/hmmm/directorys.js";
 import { list as getCompanyListApi } from "@/api/hmmm/companys.js";
@@ -221,6 +281,7 @@ import {
   citys as getCitys,
 } from "@/api/hmmm/citys.js";
 import { simple as simpleTags } from "@/api/hmmm/tags.js";
+import { add as addQuestions } from "@/api/hmmm/questions.js";
 export default {
   data() {
     return {
@@ -247,10 +308,10 @@ export default {
         difficulty: 1, //难度
         question: "", // 题干
         options: [
-          { isRight: false, code: "A", title: "", img: "" },
-          { isRight: false, code: "B", title: "", img: "" },
-          { isRight: false, code: "C", title: "", img: "" },
-          { isRight: false, code: "D", title: "", img: "" },
+          { code: "A", title: "", img: "", isRight: false },
+          { code: "B", title: "", img: "", isRight: false },
+          { code: "C", title: "", img: "", isRight: false },
+          { code: "D", title: "", img: "", isRight: false },
         ], //选项
         videoURL: "", // 视频解析
         answer: "", // 答案解析
@@ -292,6 +353,8 @@ export default {
       difficulty, //难度
       radio: "", // 单选值
       simpleTagsList: [], // 简单标签列表
+      imgIndex: "", // 选项图片索引
+      imgLoading: false, // 上传图片加载
     };
   },
   methods: {
@@ -352,6 +415,92 @@ export default {
     tagsChange() {
       this.formData.tags = this.formData.tagsArr.join(",");
     },
+
+    // 图片上传前处理
+    beforeAvatarUpload(file) {
+      console.log(file);
+      const types = ["image/jpeg", "image/png", "image/gif", "image/jpg"];
+      if (!types.includes(file.type)) {
+        this.$message.error("请上传" + types.join("或") + "类型的图片");
+        return false;
+      }
+
+      const maxSize = 2 * 1024 * 1024;
+      if (file.size > maxSize) {
+        this.$message.error("上传的图片不能大于2mb");
+        return false;
+      }
+    },
+
+    // 上传图片完成的处理
+    handleAvatarSuccess(res, file) {
+      console.log(file);
+    },
+
+    // 图片点击获取索引
+    saveImgIndex(index) {
+      if (this.imgLoading) return;
+      this.imgIndex = index;
+    },
+
+    // 图片上传请求
+    onRequest({ file }) {
+      this.imgLoading = true;
+      cos.putObject(
+        {
+          Bucket: "storage-person-1307444905" /* 必须 */,
+          Region: "ap-shanghai" /* 存储桶所在地域，必须字段 */,
+          Key: file.name /* 必须 */,
+          StorageClass: "STANDARD",
+          Body: file, // 上传文件对象
+          onProgress: function (progressData) {
+            console.log(JSON.stringify(progressData));
+          },
+        },
+        (err, data) => {
+          this.imgLoading = false;
+          if (err || data.statusCode !== 200) {
+            return this.$message.error("亲，上传失败，请重试");
+          }
+          // console.log('https://' + data.Location);
+          this.formData.options.forEach((item, index) => {
+            if (index === this.imgIndex) {
+              item.img = "https://" + data.Location;
+            }
+          });
+        }
+      );
+    },
+
+
+    // 增加选项与答案
+    addSelect(){
+      let asc = this.formData.options[this.formData.options.length - 1].code.charCodeAt()
+      asc++
+      let code = String.fromCharCode(asc)
+      this.formData.options.push({
+        code,
+        title: "",
+        img: "", 
+        isRight: false
+      })
+    },
+    // 确认提交
+    async onCommit() {
+      try {
+        await this.$refs.form.validate();
+        const formData2 = { ...this.formData };
+        formData2.tagsArr = undefined;
+        formData2.questionType = formData2.questionType.toString();
+        formData2.difficulty = formData2.difficulty.toString();
+        const res = await addQuestions(formData2);
+        console.log(res);
+        this.$message.success("添加成功");
+      } catch (error) {
+        console.dir(error);
+      }
+    },
+
   },
   created() {
     this.getSimpleSubjectsList();
@@ -385,12 +534,16 @@ export default {
 
 .avatar-uploader {
   position: absolute;
-  right: -172px;
+  right: -112px;
   top: -13px;
   width: 100px;
   border: 1px dashed #d9d9d9;
   height: 60px;
   border-radius: 5px;
+  .avatar {
+    width: 98px;
+    height: 58px;
+  }
   span {
     display: block;
     width: 100px;
@@ -410,6 +563,4 @@ export default {
   }
 }
 
-.avatar {
-}
 </style>
