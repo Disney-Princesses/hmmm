@@ -60,7 +60,10 @@
           </el-col>
           <el-col :span="6">
             <el-form-item label="关键字">
-              <el-input v-model="form.keyword"></el-input>
+              <el-input
+                v-model="form.keyword"
+                placeholder="根据题干搜索"
+              ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -161,6 +164,14 @@
         </el-row>
       </el-form>
 
+      <!-- tab标签栏 -->
+      <el-tabs v-model="activeName" type="card" @tab-click="tabsClick">
+        <el-tab-pane label="全部" name="5"></el-tab-pane>
+        <el-tab-pane label="待审核" name="0"></el-tab-pane>
+        <el-tab-pane label="已审核" name="1"></el-tab-pane>
+        <el-tab-pane label="已拒绝" name="2"></el-tab-pane>
+      </el-tabs>
+
       <!-- 条数提示 -->
       <el-alert :closable="false" class="alert">
         <slot>
@@ -178,10 +189,30 @@
       >
         <template #custom="scope">
           <el-button @click="pvwClick(scope)" class="btn">预览</el-button>
-          <el-button class="btn">审核</el-button>
-          <el-button class="btn">修改</el-button>
-          <el-button class="btn">上架</el-button>
-          <el-button class="btn">删除</el-button>
+          <el-button
+            class="btn"
+            @click="chkClick(scope)"
+            :disabled="scope.data.chkState == '已审核'"
+            :class="{ discolor: scope.data.chkState == '已审核' }"
+            >审核</el-button
+          >
+          <el-button
+            class="btn"
+            :disabled="scope.data.publishState == '上架'"
+            :class="{ discolor: scope.data.publishState == '上架' }"
+            @click="editClick(scope)"
+            >修改</el-button
+          >
+          <el-button class="btn" @click="changeStateClick(scope)">{{
+            scope.data.publishState == "上架" ? "下架" : "上架"
+          }}</el-button>
+          <el-button
+            :disabled="scope.data.publishState == '上架'"
+            :class="{ discolor: scope.data.publishState == '上架' }"
+            class="btn"
+            @click="delClick(scope)"
+            >删除</el-button
+          >
         </template>
       </gszTable>
 
@@ -193,10 +224,21 @@
         :paginationPage="dataObj.page"
         :paginationPagesize="dataObj.pagesize"
       ></gszPageTools>
+
       <!-- 预览弹窗 -->
       <gszQuestionsPpreview
+        v-if="isPvwVisible"
         :pvwVisible.sync="isPvwVisible"
+        :detailInfo="detailInfo"
       ></gszQuestionsPpreview>
+
+      <!-- 审核弹窗 -->
+      <gszQuestionsCheck
+        v-if="ischkVisible"
+        :chkVisible.sync="ischkVisible"
+        :chkId="chkId"
+        @getchoiceList="getchoiceList"
+      ></gszQuestionsCheck>
     </el-card>
   </div>
 </template>
@@ -207,19 +249,26 @@ import { questionType, difficulty, direction } from "@/api/hmmm/constants.js";
 import { simple as subjectListApi } from "@/api/hmmm/subjects.js";
 import { simple as labelListApi } from "@/api/hmmm/tags";
 import { simple as subjectSListApi } from "@/api/hmmm/directorys";
-import { choice as choiceListApi } from "@/api/hmmm/questions";
+import {
+  choice as choiceListApi,
+  detail as detailListApi,
+  remove as removeQueueApi,
+  choicePublish as choicePublishListApi,
+} from "@/api/hmmm/questions";
 // 引入地图
 import { provinces, citys } from "@/api/hmmm/citys";
 // 引入组件
 import gszTable from "../components/gsz-table";
 import gszQuestionsPpreview from "../components/gsz-questions-preview.vue";
 import gszPageTools from "../components/gsz-pageTools";
+import gszQuestionsCheck from "../components/gsz-questions-check .vue";
 
 import dayjs from "dayjs";
 
 export default {
   data() {
     return {
+      activeName: "5",
       form: {
         subjectID: "",
         catalogID: "",
@@ -237,16 +286,16 @@ export default {
       // 表格
       TitleList: [
         { label: "试题编号", key: "number", width: "150px" },
-        { label: "学科", key: "subject" , width: "150px"},
-        { label: "目录", key: "catalog" , width: "150px"},
-        { label: "题型", key: "questionType" , width: "150px"},
+        { label: "学科", key: "subject", width: "150px" },
+        { label: "目录", key: "catalog", width: "150px" },
+        { label: "题型", key: "questionType", width: "150px" },
         { label: "题干", key: "question", width: "150px" },
         { label: "录入时间", key: "addDate", width: "150px" },
         { label: "难度", key: "difficulty", width: "150px" },
-        { label: "审核状态", key: "chkState" , width: "150px"},
+        { label: "审核状态", key: "chkState", width: "150px" },
         { label: "审核意见", key: "chkRemarks", width: "150px" },
-        { label: "审核人", key: "chkUser" , width: "150px"},
-        { label: "发布状态", key: "publishState" , width: "150px"},
+        { label: "审核人", key: "chkUser", width: "150px" },
+        { label: "发布状态", key: "publishState", width: "150px" },
       ],
 
       tableDate: [],
@@ -262,10 +311,23 @@ export default {
       cityList: [],
       dataObj: {},
       // 预览弹框
-      isPvwVisible: true,
+      isPvwVisible: false,
+      detailInfo: {},
+      // 审核弹窗
+      ischkVisible: false,
+      // isChkDisabled: true,
+      chkId: "",
     };
   },
   methods: {
+    // tab切换
+    async tabsClick() {
+      if (this.activeName == 5) {
+        this.getchoiceList();
+      } else {
+        this.getchoiceList({ chkState: this.activeName });
+      }
+    },
     // 获取学科列表
     async getSubjectList() {
       const res = await subjectListApi();
@@ -303,32 +365,41 @@ export default {
       };
     },
     onSubmit() {
-      console.log("提交搜索题库");
+      // this.form.keyword = encodeURI(this.form.keyword);
+      this.getchoiceList(this.form);
     },
     // 获取题库列表
     async getchoiceList(params) {
       const res = await choiceListApi(params);
-      console.log(res);
+      // console.log(res);
       this.dataObj = res.data;
       this.tableDate = res.data.items;
       // 处理数据
 
       this.tableDate.forEach((item) => {
+        // // // 发布状态
+        // if (item.chkState == 1 && item.publishState == 0) {
+        //   item.publishState = "已下架";
+        // } else if (item.chkState == 1 && item.publishState == 1) {
+        //   item.publishState = "已发布";
+        // } else {
+        //   item.publishState = "待发布";
+        // }
+
         // 审核状态
         if (item.chkState == 0) {
           item.chkState = "待审核";
+          this.isChkDisabled = true;
         } else if (item.chkState == 1) {
           item.chkState = "已审核";
         } else {
           item.chkState = "已拒绝";
         }
-        // 发布状态
+        // 上下架
         if (item.publishState == 1) {
-          item.publishState = "待发布";
-        } else if (item.publishState == 2) {
-          item.publishState = "已发布";
+          item.publishState = "上架";
         } else {
-          item.publishState = "已下架";
+          item.publishState = "下架";
         }
         //  难度
         if (item.difficulty == 1) {
@@ -346,7 +417,7 @@ export default {
         } else if (item.questionType == 2) {
           item.questionType = "多选";
         } else {
-          item.questionType = "简单";
+          item.questionType = "简答";
         }
       });
     },
@@ -369,6 +440,68 @@ export default {
       });
     },
     // 预览弹窗
+    async pvwClick(scope) {
+      const res = await detailListApi(scope.data);
+      // console.log(res);
+      this.detailInfo = res.data;
+      // 获取到数据后显示（重绘）
+      this.isPvwVisible = true;
+    },
+    // 审核弹窗
+    chkClick(scope) {
+      this.ischkVisible = true;
+      this.chkId = scope.data.id;
+    },
+    // 修改按钮
+    editClick(scope) {
+      console.log("需要跳转");
+    },
+    // 上下架
+    async changeStateClick(scope) {
+      const confirmRes = await this.$confirm(
+        `您确定${
+          scope.data.publishState == "上架" ? "下架" : "上架"
+        }这道题目嘛?`,
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      ).catch((err) => console.log(err));
+      // 点击取消
+      if ("cancel" === confirmRes) {
+        return;
+      }
+      // 点击成功
+      if ("confirm" === confirmRes) {
+        const data = {
+          publishState: scope.data.publishState == "上架" ? "0" : "1",
+          id: scope.data.id,
+        };
+        await choicePublishListApi(data);
+        this.$message.success("操作成功");
+        this.getchoiceList();
+      }
+    },
+    // 删除
+    async delClick(scope) {
+      const confirmRes = await this.$confirm(`您确定删除这道题目嘛?`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).catch((err) => console.log(err));
+      // 点击取消
+      if ("cancel" === confirmRes) {
+        return;
+      }
+      // 点击确定
+      if ("confirm" === confirmRes) {
+        await removeQueueApi(scope.data);
+        this.$message.success("操作成功");
+        this.getchoiceList();
+      }
+    },
   },
   created() {
     // 获取学科列表
@@ -389,11 +522,15 @@ export default {
     gszTable,
     gszQuestionsPpreview,
     gszPageTools,
+    gszQuestionsCheck,
   },
 };
 </script>
 
 <style scoped lang="less">
+.discolor {
+  color: #ccc !important;
+}
 .container {
   padding: 20px;
   .tips {
