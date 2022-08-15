@@ -1,9 +1,187 @@
 <template>
-  <div class='container'>目录管理</div>
+  <el-card class="box-card">
+    <!-- 头部搜索 -->
+    <CommonHeader
+      @search="searchFn"
+      @addEvent="dialogVisible = true"
+    ></CommonHeader>
+    <!-- 总消息条数提示 -->
+    <TotalCount :totalCount="counts"></TotalCount>
+    <!-- 表格部分 -->
+    <el-table :data="directoryData" style="width: 100%">
+      <el-table-column type="index" label="序号"> </el-table-column>
+      <el-table-column prop="subjectName" label="所属学科"> </el-table-column>
+      <el-table-column prop="directoryName" label="目录名称"> </el-table-column>
+      <el-table-column prop="username" label="创建者"> </el-table-column>
+      <el-table-column prop="addDate" label="创建日期" :formatter="dateFormat">
+      </el-table-column>
+      <el-table-column prop="totals" label="面试题数量"> </el-table-column>
+      <el-table-column label="状态">
+        <template slot-scope="{ row }">
+          {{ row.state === 0 ? "已禁用" : "已启用" }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作">
+        <template slot-scope="{ row }">
+          <el-button type="text" @click="changeState(row)">{{
+            row.state === 0 ? "启用" : "禁用"
+          }}</el-button>
+          <el-button
+            type="text"
+            :disabled="row.state === 1"
+            @click="changeDirectory(row)"
+            >修改</el-button
+          >
+          <el-button
+            type="text"
+            :disabled="row.state === 1"
+            @click="deleteFn(row)"
+            >删除</el-button
+          >
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 底部分页 -->
+    <Pagination
+      :totals="counts"
+      :page.sync="page"
+      :pages="pages"
+      :pagesize.sync="pagesize"
+    ></Pagination>
+
+    <!-- 弹出框 -->
+    <SubjectDialog
+      v-if="dialogVisible"
+      :dialogVisible.sync="dialogVisible"
+      @onSave="saveFn"
+    ></SubjectDialog>
+    <!-- 修改弹出框组件 -->
+    <ChangeDialog
+      v-if="changeVisible"
+      :changeVisible.sync="changeVisible"
+      @changeSave="changeSave"
+      :changedata="toChangeData"
+    ></ChangeDialog>
+  </el-card>
 </template>
 
 <script>
-export default {}
+import CommonHeader from "@/module-hmmm/components/CommonHeader";
+import TotalCount from "@/module-hmmm/components/TotalCount";
+import Pagination from "@/module-hmmm/components/Pagination";
+import SubjectDialog from "@/module-hmmm/components/SubjectDialog";
+import ChangeDialog from "@/module-hmmm/components/ChangeDialog";
+import { list, add, changeState, update, remove } from "@/api/hmmm/directorys";
+import dayjs from "dayjs";
+export default {
+  data() {
+    return {
+      directoryData: [],
+      counts: 0,
+      page: 1,
+      pages: 0,
+      pagesize: 10,
+      dialogVisible: false,
+      changeVisible: false,
+      toChangeData: {},
+    };
+  },
+  components: {
+    CommonHeader,
+    TotalCount,
+    Pagination,
+    SubjectDialog,
+    ChangeDialog,
+  },
+  created() {
+    this.getDirectorys();
+  },
+  // 监测当前页数和页面大小的变化
+  watch: {
+    page(newval) {
+      // console.log(newval);
+      this.getDirectorys();
+    },
+    pagesize() {
+      this.getDirectorys();
+    },
+  },
+  methods: {
+    // 获取学科目录数据
+    async getDirectorys() {
+      const { data } = await list({ page: this.page, pagesize: this.pagesize });
+      // console.log(data);
+      this.directoryData = data.items;
+      this.counts = data.counts;
+    },
+    dateFormat(row, column) {
+      let date = row[column.property];
+      return dayjs(date).format("YYYY-MM-DD HH:mm:ss");
+    },
+    // 搜索
+    async searchFn(val) {
+      console.log(val);
+      if (val.state === "") {
+        const { data } = await list({
+          directoryName: val.name,
+          page: 1,
+          pagesize: 10,
+        });
+        this.directoryData = data.items;
+        this.counts = data.counts;
+        return;
+      } else if (val.name === "" && val.state === "") {
+        return this.getDirectorys();
+      }
+      const { data } = await list({
+        directoryName: val.name,
+        state: val.state,
+        page: 1,
+        pagesize: 10,
+      });
+      this.directoryData = data.items;
+      this.counts = data.counts;
+    },
+    // 新增确认
+    async saveFn(val) {
+      await add(val.subjectId, val.name);
+      this.$message.success("添加成功");
+      this.getDirectorys();
+    },
+    // 状态修改
+    async changeState(row) {
+      console.log(row);
+      if (row.state === 0) {
+        row.state = 1;
+      } else if (row.state === 1) {
+        row.state = 0;
+      }
+      await changeState(row);
+      this.$message.success("目录状态修改成功");
+    },
+    // 目录修改
+    async changeDirectory(row) {
+      this.toChangeData = row;
+      this.changeVisible = true;
+    },
+    // 目录修改确认
+    async changeSave(val) {
+      await update(val);
+      this.$message.success("目录修改成功");
+       this.getDirectorys();
+    },
+    // 删除
+    async deleteFn(row) {
+      await remove(row);
+      this.$message.success("删除成功");
+      this.getDirectorys();
+    },
+  },
+};
 </script>
 
-<style scoped lang='less'></style>
+<style scoped lang="less">
+.box-card {
+  margin: 10px;
+}
+</style>
