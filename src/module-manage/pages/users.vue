@@ -72,15 +72,14 @@
     </el-card>
     <UserAdd
       :formBase="formBase"
-      text="编辑用户"
-      pageTitle=""
+      :text="formBase.password != undefined ? '新建' : '编辑'"
+      pageTitle="用户"
       ref="UserDetial"
       :ruleInline="rules"
       :PermissionGroupsList="permissionList"
       @handleCloseModal="handleCloseModal"
       @newDataes="newDataes"
     ></UserAdd>
-    <!-- 删除用户对话框 -->
   </div>
 </template>
 
@@ -89,7 +88,6 @@ import {
   list as getUserListApi,
   detail as getUserDetailApi,
   remove as deleteUserApi,
-  add as addUserApi,
 } from "@/api/base/users.js";
 import { simple as getPermissionListApi } from "@/api/base/permissions.js";
 import UserAdd from "../components/user-add.vue";
@@ -112,8 +110,18 @@ export default {
         password: [
           { required: true, message: "密码不能为空", trigger: "blur" },
         ],
+        permission_group_id: [
+          { required: true, message: "权限组不能为空", trigger: "change" },
+        ],
       },
-      formBase: {},
+      formBase: {
+        username: "",
+        email: "",
+        role: "",
+        permission_group_id: "",
+        phone: "",
+        sex: "1",
+      },
       permissionList: [],
       deleteDialog: true,
       delDetail: {},
@@ -156,7 +164,8 @@ export default {
     // 根据用户id获取用户详情信息
     async getUserDetail(id) {
       const { data } = await getUserDetailApi(id);
-      this.formBase = data;
+      this.formBase = { ...data, sex: "1" };
+      // console.log(this.formBase);
     },
     // 获取权限名称列表
     async getPermissionList() {
@@ -166,17 +175,16 @@ export default {
     // 取消对话框
     handleCloseModal() {
       this.$refs.UserDetial.dialogFormH();
+      this.$refs.UserDetial.onClose();
     },
     // 获取新数据
-    async newDataes(data) {
-      console.log(111);
-      this.formBase = data;
-      return;
-      this.getUserList();
+    newDataes(data) {
+      this.$refs.UserDetial.dialogFormH();
+      this.$refs.UserDetial.onClose();
     },
     // 新增用户
     addUser() {
-      this.formBase = { password: "", avatar: "" };
+      this.formBase = { ...this.formBase, password: "", avatar: "" };
       this.getPermissionList();
       this.$refs.UserDetial.dialogFormV();
     },

@@ -1,6 +1,10 @@
 <template>
   <div class="add-form">
-    <el-dialog :title="text + pageTitle" :visible.sync="dialogFormVisible">
+    <el-dialog
+      :title="text + pageTitle"
+      :visible.sync="dialogFormVisible"
+      @close="onClose"
+    >
       <el-form
         :rules="ruleInline"
         ref="dataForm"
@@ -58,7 +62,7 @@
               <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
             </el-upload>
         </el-form-item>-->
-        <el-form-item :label="$t('table.introduction')">
+        <el-form-item :label="$t('table.introduction')" prop="introduction">
           <el-input
             type="textarea"
             :autosize="{ minRows: 2, maxRows: 4 }"
@@ -79,6 +83,7 @@
 
 <script>
 import { detail, update, add } from "@/api/base/users";
+import loginSocialSigninVue from "../../module-dashboard/components/loginSocialSignin.vue";
 export default {
   name: "usersAdd",
   props: [
@@ -109,21 +114,27 @@ export default {
     handleClose() {
       this.$emit("handleCloseModal");
     },
-
+    onClose() {
+      this.$refs.dataForm.resetFields();
+    },
     // 表单提交
     createData() {
-      this.$refs.dataForm.validate((valid) => {
+      this.$refs.dataForm.validate(async (valid) => {
         if (valid) {
-          this.$emit("handleCloseModal");
-          const data = {
-            ...this.formBase,
-          };
           if (this.formBase.id) {
-            update(data).then(() => {
+            let data = {
+              ...this.formBase,
+            };
+            let obj = {};
+            for (let key in data) {
+              if (key !== "create_time" && key !== "last_update_time") {
+                obj[key] = data[key];
+              }
+            }
+            await update(obj).then(() => {
               this.$emit("newDataes", this.formBase);
             });
           } else {
-            console.log(this.formBase);
             add(this.formBase).then(() => {
               this.$emit("newDataes", this.formBase);
             });
