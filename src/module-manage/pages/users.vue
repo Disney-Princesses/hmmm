@@ -89,6 +89,7 @@ import {
   list as getUserListApi,
   detail as getUserDetailApi,
   remove as deleteUserApi,
+  add as addUserApi,
 } from "@/api/base/users.js";
 import { simple as getPermissionListApi } from "@/api/base/permissions.js";
 import UserAdd from "../components/user-add.vue";
@@ -167,7 +168,10 @@ export default {
       this.$refs.UserDetial.dialogFormH();
     },
     // 获取新数据
-    newDataes(data) {
+    async newDataes(data) {
+      console.log(111);
+      this.formBase = data;
+      return;
       this.getUserList();
     },
     // 新增用户
