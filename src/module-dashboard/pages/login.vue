@@ -120,9 +120,9 @@ export default {
                 .update(this.loginForm.password)
                 .digest("hex"),
             })
-            .then(() => {
+            .then(async () => {
+              await this.$router.push({ path: "/" });
               this.loading = false;
-              this.$router.push({ path: "/" });
             })
             .catch(() => {
               this.loading = false;
