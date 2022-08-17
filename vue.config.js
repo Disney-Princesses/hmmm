@@ -33,8 +33,8 @@ module.exports = {
     proxy: {
       // 只有/开头的请求才会向远程服务器发送请求
       "/": {
-        // target: "http://liufusong.top:7001/",
-        target: "http://hmmm-api.itheima.net/",
+        target: "http://liufusong.top:7001/",
+        // target: "http://hmmm-api.itheima.net/",
         changeOrigin: true,
       },
     },

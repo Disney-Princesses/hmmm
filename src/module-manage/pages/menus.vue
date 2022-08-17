@@ -7,14 +7,14 @@
           type="success"
           icon="el-icon-edit"
           class="addpermissBtn"
-          @click="dialogFormVisible = true"
+          @click="isShowMenus"
         >
           添加菜单
         </el-button>
       </el-col>
     </el-row>
     <!-- 表单渲染 -->
-    <mentus-table></mentus-table>
+    <mentus-table ref="mentusTable"></mentus-table>
   </el-card>
 </template>
 
@@ -27,7 +27,11 @@ export default {
 
   created() {},
 
-  methods: {},
+  methods: {
+    isShowMenus() {
+      this.$refs.mentusTable.dialogFormVisible = true;
+    },
+  },
 
   components: {
     mentusTable,
