@@ -3,7 +3,7 @@
     :title="titleName"
     :visible="dialogVisible"
     width="30%"
-    @close="$emit('update:dialogVisible', false)"
+    @close="closeFn"
   >
     <el-form ref="form" :model="form" :rules="formRules" label-width="80px">
       <el-form-item label="所属学科" prop="subjectID">
@@ -28,7 +28,7 @@
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="$emit('update:dialogVisible', false)">取 消</el-button>
+      <el-button @click="closeFn">取 消</el-button>
       <el-button type="primary" @click="onSave">确 认</el-button>
     </span>
   </el-dialog>
@@ -75,10 +75,7 @@ export default {
   },
   computed: {
     titleName() {
-      if (this.tochange.id) {
-        return "修改标签";
-      }
-      return "新增标签";
+      return this.tochange.id ? "修改标签" : "新增标签";
     },
   },
   created() {
@@ -86,7 +83,6 @@ export default {
     if (this.tochange.id) {
       this.form.subjectID = this.tochange.subjectID;
       this.form.tagName = this.tochange.tagName;
-      this.form.id = this.tochange.id;
     }
   },
 
@@ -96,22 +92,30 @@ export default {
       const { data } = await list();
       this.selectData = data.items;
     },
+    // 关闭时清空表单
+    closeFn() {
+      this.$emit("update:dialogVisible", false);
+      this.$refs.form.resetFields();
+      this.form = {
+        subjectID: "",
+        tagName: "",
+      };
+    },
     // 确认
     async onSave() {
       await this.$refs.form.validate();
       if (this.tochange.id) {
         // 修改
         await update(this.form);
+        this.closeFn();
         this.$message.success("修改标签成功");
       } else {
         // 新增
         await add(this.form);
+        this.closeFn();
         this.$message.success("添加成功");
       }
-      this.$emit("update:dialogVisible", false);
       this.$parent.$options.parent.getTags();
-      // 表单清空
-      this.$refs.form.resetField();
     },
   },
 };

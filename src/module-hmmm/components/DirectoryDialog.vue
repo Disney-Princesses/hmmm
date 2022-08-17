@@ -3,9 +3,9 @@
     :title="titleName"
     :visible="dialogVisible"
     width="30%"
-    @close="$emit('update:dialogVisible', false)"
+    @close="closeFn"
   >
-    <el-form ref="form" :model="form" :rules="formRules" label-width="80px">
+    <el-form ref="form" :model="form" :rules="formRules" v-if='dialogVisible' label-width="80px">
       <el-form-item label="所属学科" prop="subjectID">
         <el-select
           v-model="form.subjectID"
@@ -28,15 +28,15 @@
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="$emit('update:dialogVisible', false)">取 消</el-button>
+      <el-button @click="closeFn">取 消</el-button>
       <el-button type="primary" @click="onSave">确 认</el-button>
     </span>
   </el-dialog>
 </template>
 
 <script>
-import {list } from '@/api/hmmm/subjects'
-import {add, update } from "@/api/hmmm/directorys";
+import { list } from "@/api/hmmm/subjects";
+import { add, update } from "@/api/hmmm/directorys";
 export default {
   data() {
     return {
@@ -75,10 +75,7 @@ export default {
   },
   computed: {
     titleName() {
-      if (this.tochange.id) {
-        return "修改目录";
-      }
-      return "新增目录";
+      return this.tochange.id ? "修改目录" : "新增目录";
     },
   },
   created() {
@@ -86,7 +83,6 @@ export default {
     if (this.tochange.id) {
       this.form.subjectID = this.tochange.subjectID;
       this.form.directoryName = this.tochange.directoryName;
-      this.form.id = this.tochange.id;
     }
   },
 
@@ -94,25 +90,33 @@ export default {
     // 获取学科列表
     async getSubjectList() {
       const { data } = await list();
-      console.log(data);
       this.selectData = data.items;
+    },
+    // 关闭时清空表单
+    closeFn() {
+      this.$emit("update:dialogVisible", false);
+      this.$refs.form.resetFields();
+      this.form = {
+        subjectID: "",
+        directoryName: "",
+      };
     },
     // 确认
     async onSave() {
       await this.$refs.form.validate();
       if (this.tochange.id) {
         // 修改
+        this.form.id = this.tochange.id;
         await update(this.form);
+        this.closeFn();
         this.$message.success("修改目录成功");
       } else {
         // 新增
         await add(this.form);
+        this.closeFn();
         this.$message.success("添加成功");
       }
-      this.$emit("update:dialogVisible", false);
-      this.$parent.$options.parent.getDirectorys()
-      // 表单清空
-      this.$refs.form.resetField();
+      this.$parent.$options.parent.getDirectorys();
     },
   },
 };
