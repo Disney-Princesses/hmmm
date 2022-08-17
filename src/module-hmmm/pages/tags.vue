@@ -3,7 +3,7 @@
     <!-- 头部搜索 -->
     <CommonHeader
       @search="searchFn"
-      @addEvent="dialogVisible = true"
+      @addEvent="addFn"
     ></CommonHeader>
     <!-- 总消息条数提示 -->
     <TotalCount :totalCount="counts"></TotalCount>
@@ -88,7 +88,7 @@ export default {
     // 获取学科目录数据
     async getTags() {
       const { data } = await list({ page: this.page, pagesize: this.pagesize });
-      console.log(data);
+      // console.log(data);
       this.tagsData = data.items;
       this.counts = data.counts;
     },
@@ -133,9 +133,12 @@ export default {
     },
      // 标签修改
     async changeTags(row) {
-      console.log(row);
       this.toChangeData = row;
       this.dialogVisible = true;
+    },
+     addFn() {
+      this.dialogVisible = true
+      this.toChangeData={}
     },
     // 删除
     async deleteFn(row) {

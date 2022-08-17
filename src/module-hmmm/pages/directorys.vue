@@ -3,7 +3,7 @@
     <!-- 头部搜索 -->
     <CommonHeader
       @search="searchFn"
-      @addEvent="dialogVisible = true"
+      @addEvent="addFn"
     ></CommonHeader>
     <!-- 总消息条数提示 -->
     <TotalCount :totalCount="counts"></TotalCount>
@@ -147,6 +147,10 @@ export default {
     async changeDirectory(row) {
       this.toChangeData = row;
       this.dialogVisible = true;
+    },
+    addFn() {
+      this.dialogVisible = true
+      this.toChangeData={}
     },
     // 删除
     async deleteFn(row) {
