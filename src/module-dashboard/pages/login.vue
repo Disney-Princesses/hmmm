@@ -121,8 +121,8 @@ export default {
                 .digest("hex"),
             })
             .then(async () => {
-              this.loading = false;
               await this.$router.push({ path: "/" });
+              this.loading = false;
             })
             .catch(() => {
               this.loading = false;

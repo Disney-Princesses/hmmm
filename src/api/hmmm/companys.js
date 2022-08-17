@@ -9,6 +9,7 @@
 
 import { createAPI } from '@/utils/request'
 
+// 企业管理列表
 export const list = data => createAPI('/companys', 'get', data)
 export const add = data => createAPI('/companys', 'post', data)
 export const update = data => createAPI(`/companys/${data.id}`, 'put', data)
