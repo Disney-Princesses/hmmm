@@ -187,6 +187,7 @@ export default {
       this.formBase = { ...this.formBase, password: "", avatar: "" };
       this.getPermissionList();
       this.$refs.UserDetial.dialogFormV();
+      this.getUserList();
     },
     // 删除用户
     deleteUser(val) {
