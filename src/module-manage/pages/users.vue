@@ -181,13 +181,13 @@ export default {
     newDataes(data) {
       this.$refs.UserDetial.dialogFormH();
       this.$refs.UserDetial.onClose();
+      this.getUserList();
     },
     // 新增用户
     addUser() {
       this.formBase = { ...this.formBase, password: "", avatar: "" };
       this.getPermissionList();
       this.$refs.UserDetial.dialogFormV();
-      this.getUserList();
     },
     // 删除用户
     deleteUser(val) {
