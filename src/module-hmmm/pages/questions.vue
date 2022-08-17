@@ -5,7 +5,7 @@
         <span class="tips">说明：目前支持学科和关键字条件筛选</span>
         <el-button type="success" size="small">
           <i class="el-icon-edit"></i>
-          <span>新增试题</span>
+          <span @click="$router.push('/questions/new')">新增试题</span>
         </el-button>
       </div>
       <div class="searchForm">
@@ -229,6 +229,7 @@
                 icon="el-icon-view"
                 circle
                 plain
+                @click="previewQuestion(scope)"
               ></el-button>
               <!-- 编辑 -->
               <el-button
@@ -271,7 +272,12 @@
       </el-pagination>
     </el-card>
     <!-- 点击删除的对话框 -->
-    <el-dialog title="提示" :visible.sync="deleteDialog" width="30%">
+    <el-dialog
+      title="提示"
+      :visible.sync="deleteDialog"
+      width="30%"
+      class="deleteDialog"
+    >
       <i class="el-icon-info" v-if="delValue.choiceState"></i>
       <p v-if="delValue.choiceState">此操作将改题目加入精选，是否继续？</p>
       <i class="el-icon-warning" v-if="!delValue.choiceState"></i>
@@ -280,6 +286,130 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="deleteDialog = false" size="small">取 消</el-button>
         <el-button type="primary" @click="onFirm" size="small">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 点击预览的对话框 -->
+    <el-dialog
+      title="题目预览"
+      :visible.sync="previewDialog"
+      width="60%"
+      class="previewDialog"
+      @close="onClose"
+    >
+      <div>
+        <div class="header">
+          <el-row>
+            <el-col :span="6"
+              ><div class="grid-content">
+                【题型】：{{ formData.questionType }}题
+              </div></el-col
+            >
+            <el-col :span="6"
+              ><div class="grid-content">
+                【编号】：{{ formData.id }}
+              </div></el-col
+            >
+            <el-col :span="6"
+              ><div class="grid-content">
+                【难度】： {{ formData.difficulty }}
+              </div></el-col
+            >
+            <el-col :span="6"
+              ><div class="grid-content">
+                【标签】：{{ formData.tags }}
+              </div></el-col
+            >
+            <el-col :span="6"
+              ><div class="grid-content">
+                【学科】：{{ formData.subjectName }}
+              </div></el-col
+            >
+            <el-col :span="6"
+              ><div class="grid-content">
+                【目录】：{{ formData.directoryName }}
+              </div></el-col
+            >
+            <el-col :span="6"
+              ><div class="grid-content">
+                【方向】：{{ formData.direction }}
+              </div></el-col
+            >
+          </el-row>
+        </div>
+        <hr />
+      </div>
+      <div class="content">
+        <el-row>
+          <el-col :span="6"> <div class="grid-content">【题干】：</div></el-col>
+        </el-row>
+        <p v-html="formData.question" class="question"></p>
+        <div class="checkchoose">
+          <p>
+            {{ formData.questionType }}题 选项：（以下选中的选项为正确答案）
+          </p>
+          <!-- 多选框 -->
+          <div class="checkbox" v-if="formData.questionType === '多选'">
+            <el-checkbox-group v-model="checkboxForm.type">
+              <el-checkbox
+                name="type"
+                :label="`${item.code}、 ${item.title}`"
+                v-for="item in formData.options"
+                :key="item.id"
+                style="width: 100%"
+              ></el-checkbox>
+            </el-checkbox-group>
+          </div>
+          <!-- 单选框 -->
+          <div class="radio" v-if="formData.questionType === '单选'">
+            <el-radio-group v-model="checkboxForm.radio">
+              <el-radio
+                v-model="checkboxForm.radio"
+                :label="`${item.code}、 ${item.title}`"
+                v-for="item in formData.options"
+                :key="item.id"
+                style="width: 100%"
+              ></el-radio>
+              <br />
+            </el-radio-group>
+          </div>
+        </div>
+        <hr />
+        <el-row>
+          <el-col>
+            <div class="grid-content">
+              【参考答案】：<el-button type="danger" @click="isShowVedio = true"
+                >视频答案预览</el-button
+              >
+            </div>
+            <div class="videoBox" v-if="isShowVedio">
+              <video
+                :src="formData.videoURL"
+                controls
+                autoplay
+                class="video"
+              ></video>
+            </div>
+          </el-col>
+        </el-row>
+        <hr />
+        <el-row>
+          <el-col>
+            <div class="grid-content">
+              【答案解析】：
+              <span v-html="formData.answer" class="answer"></span></div
+          ></el-col>
+        </el-row>
+        <hr />
+        <el-row>
+          <el-col>
+            <div class="grid-content">
+              【题目备注】：
+              <span v-html="formData.remarks"></span></div
+          ></el-col>
+        </el-row>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="onClose">关闭</el-button>
       </span>
     </el-dialog>
   </div>
@@ -296,6 +426,7 @@ import {
   list as getQuestionListApi,
   remove as deleteQuestionApi,
   choiceAdd as enterQuestionApi,
+  detail as getBasicQuestionDetailApi,
 } from "@/api/hmmm/questions.js";
 export default {
   data() {
@@ -354,6 +485,13 @@ export default {
       // 点击删除对话框
       deleteDialog: false,
       delValue: {},
+      previewDialog: false,
+      checkboxForm: {
+        radio: "",
+        type: [],
+      },
+      formData: {},
+      isShowVedio: false,
     };
   },
   created() {
@@ -484,13 +622,12 @@ export default {
     },
     // 点击确定
     async onFirm() {
-      this.deleteDialog = false;
       if (this.delValue.choiceState) {
         await enterQuestionApi(this.delValue);
       } else {
         await deleteQuestionApi(this.delValue);
       }
-
+      this.deleteDialog = false;
       this.getQuestionList();
     },
     // 进入精选题库
@@ -499,7 +636,49 @@ export default {
       this.delValue.choiceState = 1;
       this.deleteDialog = true;
     },
-    editBtn() {},
+    // 进入预览
+    async previewQuestion({ row }) {
+      const { data } = await getBasicQuestionDetailApi(row);
+      const questType = this.questionList.find(
+        (item) => item.value == data.questionType
+      );
+      data.questionType = questType.label;
+      const difficulty = this.difficultyList.find(
+        (item) => item.value == data.difficulty
+      );
+      data.difficulty = difficulty.label;
+      if (data.questionType === "单选") {
+        const isRadio = data.options.find((item) => item.isRight === 1);
+        this.checkboxForm.radio = isRadio
+          ? `${isRadio.code}、 ${isRadio.title}`
+          : "";
+      } else {
+        if (data.questionType === "多选") {
+          const arr = data.options.filter((item) => item.isRight === 1);
+          arr.forEach((item) =>
+            this.checkboxForm.type.push(`${item.code}、 ${item.title}`)
+          );
+        }
+      }
+
+      this.formData = data;
+      this.previewDialog = true;
+    },
+    // 关闭预览
+    onClose() {
+      this.isShowVedio = false;
+      this.previewDialog = false;
+    },
+    // 点击编辑按钮
+    editBtn({ row }) {
+      this.$router.push({
+        path: "/questions/new",
+        name: "questions-new",
+        query: {
+          id: row.id,
+        },
+      });
+    },
   },
 };
 </script>
@@ -535,33 +714,67 @@ export default {
     text-align: right;
   }
 }
-::v-deep .el-dialog {
-  border-radius: 4px;
-  padding-bottom: 10px;
-  .el-dialog__header {
-    background-color: #fff;
-    .el-dialog__title {
-      font-size: 18px;
-      line-height: 1;
-      color: #303133;
+.deleteDialog {
+  ::v-deep .el-dialog {
+    border-radius: 4px;
+    padding-bottom: 10px;
+    .el-dialog__header {
+      background-color: #fff;
+      .el-dialog__title {
+        font-size: 18px;
+        line-height: 1;
+        color: #303133;
+      }
+      padding: 15px 15px 10px;
     }
-    padding: 15px 15px 10px;
+    .el-dialog__body {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      .el-icon-warning {
+        color: #e6a23c;
+        font-size: 24px;
+      }
+      p {
+        margin-left: 12px;
+      }
+    }
+    .el-dialog__footer {
+      padding: 5px 15px 0;
+      text-align: right;
+    }
   }
-  .el-dialog__body {
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    .el-icon-warning {
-      color: #e6a23c;
-      font-size: 24px;
-    }
-    p {
-      margin-left: 12px;
+}
+.previewDialog {
+  .header {
+    .el-col {
+      padding: 10px 0;
     }
   }
-  .el-dialog__footer {
-    padding: 5px 15px 0;
-    text-align: right;
+  .content {
+    .el-checkbox,
+    .radio {
+      padding: 8px 0;
+    }
+    .el-button--danger {
+      height: 32px;
+      padding: 9px 15px;
+      font-size: 12px;
+    }
+    .el-col-24 {
+      padding: 10px 0;
+    }
+    .question {
+      color: blue;
+    }
+    .answer {
+      p {
+        margin: 0;
+      }
+    }
+  }
+  ::v-deep .el-dialog__footer {
+    text-align: right !important;
   }
 }
 </style>
