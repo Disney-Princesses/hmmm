@@ -181,6 +181,7 @@ export default {
     newDataes(data) {
       this.$refs.UserDetial.dialogFormH();
       this.$refs.UserDetial.onClose();
+      this.getUserList();
     },
     // 新增用户
     addUser() {
