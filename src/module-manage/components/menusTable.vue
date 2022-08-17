@@ -35,6 +35,7 @@
     </el-table>
     <!-- 弹框 -->
     <menusAdd
+      v-if="dialogFormVisible"
       :dialogFormVisible.sync="dialogFormVisible"
       :text="text"
       @upDataes="getList"
@@ -125,7 +126,9 @@ export default {
     revampFn(row) {
       this.text = "修改菜单";
       this.dialogFormVisible = true;
-      this.$refs.menusAdd.hanldeEditForm(row.id, row.is_point);
+      this.$nextTick(() => {
+        this.$refs.menusAdd.hanldeEditForm(row.id, row.is_point);
+      });
     },
   },
   components: {
