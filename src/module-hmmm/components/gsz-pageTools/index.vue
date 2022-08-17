@@ -7,7 +7,7 @@
       :current-page="Number(paginationPage)"
       :total="Number(total)"
       :page-size="Number(paginationPagesize)"
-      :page-sizes="[5, 10, 20, 50]"
+      :page-sizes="pageSizes"
       layout=" prev, pager, next,sizes, jumper"
     >
     </el-pagination>
@@ -16,7 +16,7 @@
 <script>
 export default {
   name: "PageTool",
-  props: ["total", "paginationPage", "paginationPagesize"],
+  props: ["total", "paginationPage", "paginationPagesize", "pageSizes"],
   data() {
     return {};
   },

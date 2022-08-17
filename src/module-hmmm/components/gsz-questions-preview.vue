@@ -143,16 +143,16 @@ export default {
       );
       return findItem.label;
     },
-    checkList(){
-      let checkList=[]
-      this.detailInfo.options.filter(item=>{
-        if(item.isRight==1){
-          return checkList.push(item.title)
+    checkList() {
+      let checkList = [];
+      this.detailInfo.options.filter((item) => {
+        if (item.isRight == 1) {
+          return checkList.push(item.title);
         }
-        return false
-        })
-      return checkList
-    }
+        return false;
+      });
+      return checkList;
+    },
   },
 };
 </script>

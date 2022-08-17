@@ -221,8 +221,9 @@
         @pageChange="onPageChange"
         @pageSizeChange="onPageSizeChange"
         :total="dataObj.counts"
-        :paginationPage="dataObj.page"
-        :paginationPagesize="dataObj.pagesize"
+        :paginationPage="page"
+        :paginationPagesize="pagesize"
+        :pageSizes="pageSizes"
       ></gszPageTools>
 
       <!-- 预览弹窗 -->
@@ -317,6 +318,10 @@ export default {
       ischkVisible: false,
       // isChkDisabled: true,
       chkId: "",
+      // 分页
+      pageSizes: [5, 10, 20, 50],
+      pagesize: 5,
+      page: 1,
     };
   },
   methods: {
@@ -364,14 +369,24 @@ export default {
         area: "",
       };
     },
+    // 提交搜索
     onSubmit() {
       // this.form.keyword = encodeURI(this.form.keyword);
-      this.getchoiceList(this.form);
+      this.getchoiceList();
     },
     // 获取题库列表
-    async getchoiceList(params) {
-      const res = await choiceListApi(params);
-      // console.log(res);
+    async getchoiceList() {
+      const form = {};
+      for (let key in this.form) {
+        if (this.form[key] !== "") {
+          form[key] = this.form[key];
+        }
+      }
+      const res = await choiceListApi({
+        ...form,
+        page: this.page,
+        pagesize: this.pagesize,
+      });
       this.dataObj = res.data;
       this.tableDate = res.data.items;
       // 处理数据
@@ -424,20 +439,13 @@ export default {
     // 分页
     //进入某一页
     async onPageChange(val) {
-      // console.log(val);
-      this.dataObj.page = val;
-      await this.getchoiceList({
-        page: this.dataObj.page,
-        pagesize: this.dataObj.pagesize,
-      });
+      this.page = val;
+      await this.getchoiceList();
     },
     // 每页显示信息条数
     async onPageSizeChange(val) {
-      this.dataObj.pagesize = val;
-      await this.getchoiceList({
-        page: this.dataObj.page,
-        pagesize: this.dataObj.pagesize,
-      });
+      this.pagesize = val;
+      await this.getchoiceList();
     },
     // 预览弹窗
     async pvwClick(scope) {
