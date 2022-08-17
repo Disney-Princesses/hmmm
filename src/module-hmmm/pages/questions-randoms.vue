@@ -24,7 +24,7 @@
       <el-alert :closable="false" class="alert">
         <slot>
           <i class="el-icon-info"></i>
-          数据一共{{}}条</slot
+          数据一共{{ objData.counts }}条</slot
         >
       </el-alert>
 
@@ -123,7 +123,7 @@ export default {
       ],
       tableDate: [],
       objData: {},
-      // 分页、
+      // 分页
       page: 1,
       pagesize: 20,
       pageSizes: [20, 50, 100, 200],
@@ -149,7 +149,7 @@ export default {
         keyword: this.input,
       });
 
-      console.log(res.data.items);
+      // console.log(res.data.items);
       this.objData = res.data;
       this.tableDate = res.data.items;
     },
