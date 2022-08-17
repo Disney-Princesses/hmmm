@@ -28,11 +28,11 @@
             </el-select>
           </el-form-item>
           <!-- 目录 -->
-          <el-form-item label="目录：" prop="cataloglD">
+          <el-form-item label="目录：" prop="catalogID">
             <el-select
               placeholder="请选择"
               style="width: 400px"
-              v-model="formData.cataloglD"
+              v-model="formData.catalogID"
             >
               <el-option
                 v-for="item in simpleDirectoryList"
@@ -43,11 +43,11 @@
             </el-select>
           </el-form-item>
           <!-- 企业 -->
-          <el-form-item label="企业：" prop="enterpriselD">
+          <el-form-item label="企业：" prop="enterpriseID">
             <el-select
               placeholder="请选择"
               style="width: 400px"
-              v-model="formData.enterpriselD"
+              v-model="formData.enterpriseID"
             >
               <el-option
                 v-for="item in companyList"
@@ -236,13 +236,12 @@
             <el-input type="textarea" v-model="formData.remarks"></el-input>
           </el-form-item>
           <!-- 试题标签 -->
-          <el-form-item label="试题标签：" prop="tagsArr">
+          <el-form-item label="试题标签：" prop="tags">
             <el-select
               placeholder="请选择"
               style="width: 400px"
-              v-model="formData.tagsArr"
+              v-model="formData.tags"
               multiple
-              @change="tagsChange"
             >
               <el-option
                 v-for="item in simpleTagsList"
@@ -299,8 +298,8 @@ export default {
       },
       formData: {
         subjectID: "", // 学科
-        cataloglD: "", // 目录
-        enterpriselD: "", // 企业
+        catalogID: "", // 目录
+        enterpriseID: "", // 企业
         province: "", // 城市
         city: "", //地区
         direction: "", //方向
@@ -316,17 +315,16 @@ export default {
         videoURL: "", // 视频解析
         answer: "", // 答案解析
         remarks: "", // 题目备注
-        tags: "", // 试题标签
-        tagsArr: "", // 试题标签数组
+        tags: [], // 试题标签
       },
       formDataRules: {
         subjectID: [
           { required: true, message: "请输入学科", trigger: "change" },
         ],
-        cataloglD: [
+        catalogID: [
           { required: true, message: "请输入目录", trigger: "change" },
         ],
-        enterpriselD: [
+        enterpriseID: [
           { required: true, message: "请输入企业", trigger: "change" },
         ],
         city: [{ required: true, message: "请选择地区", trigger: "change" }],
@@ -372,7 +370,7 @@ export default {
       });
       // console.log(data);
       this.simpleDirectoryList = data;
-      this.formData.cataloglD = "";
+      this.formData.catalogID = "";
     },
     // 获取企业列表
     async getCompanyList() {
@@ -409,11 +407,6 @@ export default {
       });
       // console.log(data);
       this.simpleTagsList = data;
-    },
-
-    // 试题标签选中发生变化时
-    tagsChange() {
-      this.formData.tags = this.formData.tagsArr.join(",");
     },
 
     // 图片上传前处理
@@ -489,11 +482,11 @@ export default {
     async onCommit() {
       try {
         await this.$refs.form.validate();
-        const formData2 = { ...this.formData };
-        formData2.tagsArr = undefined;
-        formData2.questionType = formData2.questionType.toString();
-        formData2.difficulty = formData2.difficulty.toString();
-        const res = await addQuestions(formData2);
+        const formObj = { ...this.formData };
+        formObj.questionType = String(formObj.questionType)
+        formObj.difficulty = String(formObj.difficulty)
+        formObj.tags = formObj.tags.join(",");
+        const res = await addQuestions(formObj);
         console.log(res);
         this.$message.success("添加成功");
       } catch (error) {
