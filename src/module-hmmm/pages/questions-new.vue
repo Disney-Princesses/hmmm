@@ -106,6 +106,7 @@
                 v-for="item in questionType"
                 :key="item.value"
                 :label="item.value"
+                @change="questionTypesSelect(item.value)"
                 >{{ item.label }}</el-radio
               >
             </el-radio-group>
@@ -212,7 +213,9 @@
                   </el-upload>
                 </el-checkbox>
               </div>
-              <el-button type="danger" @click="addSelect">+增加选项与答案</el-button>
+              <el-button type="danger" @click="addSelect"
+                >+增加选项与答案</el-button
+              >
             </template>
           </el-form-item>
           <!-- 解析视频 -->
@@ -252,7 +255,11 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onCommit">确认提交</el-button>
+            <el-button
+              :type="$route.query.id ? 'success' : 'primary'"
+              @click="onCommit"
+              >{{ $route.query.id ? "确认修改" : "确认提交" }}</el-button
+            >
           </el-form-item>
         </el-form>
       </div>
@@ -280,7 +287,11 @@ import {
   citys as getCitys,
 } from "@/api/hmmm/citys.js";
 import { simple as simpleTags } from "@/api/hmmm/tags.js";
-import { add as addQuestions } from "@/api/hmmm/questions.js";
+import {
+  add as addQuestions,
+  detail as topicDetailApi,
+  update as editQuestionsApi,
+} from "@/api/hmmm/questions.js";
 export default {
   data() {
     return {
@@ -353,6 +364,12 @@ export default {
       simpleTagsList: [], // 简单标签列表
       imgIndex: "", // 选项图片索引
       imgLoading: false, // 上传图片加载
+      multiSelectList: [
+        { code: "A", title: "", img: "", isRight: false },
+        { code: "B", title: "", img: "", isRight: false },
+        { code: "C", title: "", img: "", isRight: false },
+        { code: "D", title: "", img: "", isRight: false },
+      ], //多选列表
     };
   },
   methods: {
@@ -465,40 +482,109 @@ export default {
       );
     },
 
+    // 题型选择对应变化
+    questionTypesSelect(val) {
+      if (val === 1) {
+        this.formData.options = [
+          { code: "A", title: "", img: "", isRight: false },
+          { code: "B", title: "", img: "", isRight: false },
+          { code: "C", title: "", img: "", isRight: false },
+          { code: "D", title: "", img: "", isRight: false },
+        ];
+      } else if (val === 2) {
+        this.formData.options = [...this.multiSelectList];
+      }
+    },
 
     // 增加选项与答案
-    addSelect(){
-      let asc = this.formData.options[this.formData.options.length - 1].code.charCodeAt()
-      asc++
-      let code = String.fromCharCode(asc)
-      this.formData.options.push({
+    addSelect() {
+      let asc =
+        this.multiSelectList[this.multiSelectList.length - 1].code.charCodeAt();
+      asc++;
+      let code = String.fromCharCode(asc);
+      this.multiSelectList.push({
         code,
         title: "",
-        img: "", 
-        isRight: false
-      })
+        img: "",
+        isRight: false,
+      });
+      this.formData.options = [...this.multiSelectList];
     },
     // 确认提交
     async onCommit() {
       try {
         await this.$refs.form.validate();
         const formObj = { ...this.formData };
-        formObj.questionType = String(formObj.questionType)
-        formObj.difficulty = String(formObj.difficulty)
+        formObj.questionType = String(formObj.questionType);
+        formObj.difficulty = String(formObj.difficulty);
         formObj.tags = formObj.tags.join(",");
-        const res = await addQuestions(formObj);
-        console.log(res);
-        this.$message.success("添加成功");
+        if (this.$route.query.id) {
+          await editQuestionsApi(formObj);
+          this.$router.push("/questions/list");
+          this.$message.success("修改成功");
+        } else {
+          await addQuestions(formObj);
+          // console.log(res);
+          this.$router.push("/questions/list");
+          this.$message.success("添加成功");
+          this.formData = {
+            subjectID: "", // 学科
+            catalogID: "", // 目录
+            enterpriseID: "", // 企业
+            province: "", // 城市
+            city: "", //地区
+            direction: "", //方向
+            questionType: 1, //题型
+            difficulty: 1, //难度
+            question: "", // 题干
+            options: [
+              { code: "A", title: "", img: "", isRight: false },
+              { code: "B", title: "", img: "", isRight: false },
+              { code: "C", title: "", img: "", isRight: false },
+              { code: "D", title: "", img: "", isRight: false },
+            ], //选项
+            videoURL: "", // 视频解析
+            answer: "", // 答案解析
+            remarks: "", // 题目备注
+            tags: [], // 试题标签
+          };
+          this.$refs.form.resetFields();
+        }
       } catch (error) {
         console.dir(error);
       }
     },
 
+    // 获取题目详情
+    async getTopicDetail() {
+      if (this.$route.query.id) {
+        const { data } = await topicDetailApi({ id: this.$route.query.id });
+        console.log(data);
+        data.difficulty = data.difficulty - 0;
+        data.questionType = data.questionType - 0;
+        data.tags = data.tags.split(",");
+        data.options.forEach((item) => {
+          item.isRight = item.isRight ? true : false;
+        });
+        if (data.questionType === 1) {
+          data.options.forEach((item) => {
+            if (item.isRight) {
+              this.radio = item.code;
+            }
+          });
+        }
+        this.formData = { ...data };
+        setTimeout(() => {
+          this.formData.city = data.city;
+        }, 1000);
+      }
+    },
   },
   created() {
     this.getSimpleSubjectsList();
     this.getCompanyList();
     this.provincesList = getProvinces();
+    this.getTopicDetail();
   },
   computed: {
     // 城市下地区列表
@@ -555,5 +641,4 @@ export default {
     right: -7px;
   }
 }
-
 </style>
