@@ -1,9 +1,9 @@
 <template>
-  <div class='container'>添加标签对话框</div>
+  <div class="container"></div>
 </template>
 
 <script>
-export default {}
+export default {};
 </script>
 
-<style scoped lang='less'></style>
+<style scoped lang="less"></style>
