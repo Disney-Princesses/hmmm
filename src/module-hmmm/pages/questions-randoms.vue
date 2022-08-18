@@ -24,7 +24,7 @@
       <el-alert :closable="false" class="alert">
         <slot>
           <i class="el-icon-info"></i>
-          数据一共{{ objData.counts }}条</slot
+          数据一共{{ objData.counts }}条（关水珠）</slot
         >
       </el-alert>
 

@@ -80,7 +80,7 @@
       </el-form>
 
       <el-alert
-        :title="`共${count}条记录`"
+        :title="`共${count}条记录（臧炼鑫）`"
         type="info"
         show-icon
         :closable="false"
@@ -148,6 +148,7 @@ export default {
     this.provinceList = provinces();
     this.getCompanyList();
   },
+
 
   methods: {
     // 城市点击改变

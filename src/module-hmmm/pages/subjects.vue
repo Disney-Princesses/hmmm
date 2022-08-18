@@ -30,7 +30,7 @@
       <el-alert :closable="false" class="alert">
         <slot>
           <i class="el-icon-info"></i>
-          数据一共{{}}条</slot
+          数据一共{{ objData.counts }}条（关水珠）</slot
         >
       </el-alert>
 
@@ -60,7 +60,7 @@
             <el-button class="btn" @click="classClick(scope)"
               >学科分类</el-button
             >
-            <el-button class="btn">学科标签</el-button>
+            <el-button class="btn" @click="tagClick(scope)">学科标签</el-button>
             <el-button class="btn" @click="editClick(scope)">修改</el-button>
             <el-button class="btn" @click="delClick(scope)">删除</el-button>
           </template>
@@ -259,6 +259,26 @@ export default {
             message: "已取消删除",
           });
         });
+    },
+    // 跳转学科目录
+    classClick(scope) {
+      // console.log(scope);
+      this.$router.push({
+        path: "/subjects/directorys",
+        query: {
+          id: scope.row.id,
+          name: scope.row.subjectName,
+        },
+      });
+    },
+    tagClick(scope) {
+      this.$router.push({
+        path: "/subjects/tags",
+        query: {
+          id: scope.row.id,
+          name: scope.row.subjectName,
+        },
+      });
     },
   },
   components: {

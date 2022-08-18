@@ -2,7 +2,7 @@
   <div class="container">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>试题录入</span>
+        <span>试题录入（臧炼鑫）</span>
       </div>
       <div>
         <el-form
@@ -372,6 +372,8 @@ export default {
       ], //多选列表
     };
   },
+
+  
   methods: {
     // 获取简单学科列表
     async getSimpleSubjectsList() {

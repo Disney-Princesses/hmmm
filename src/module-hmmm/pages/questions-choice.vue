@@ -8,7 +8,7 @@
         </el-col>
         <el-col :span="12">
           <el-row type="flex" justify="end">
-            <el-button type="success" icon="el-icon-edit" size="small"
+            <el-button type="success" icon="el-icon-edit" size="small" @click="$router.push('/questions/new')"
               >新增试题</el-button
             >
           </el-row>
@@ -462,7 +462,11 @@ export default {
     },
     // 修改按钮
     editClick(scope) {
-      console.log("需要跳转");
+      console.log(scope);
+      this.$router.push({
+        path:'/questions/new',
+        query:{id: scope.data.id}
+      })
     },
     // 上下架
     async changeStateClick(scope) {
