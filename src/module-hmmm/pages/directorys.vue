@@ -4,6 +4,7 @@
     <CommonHeader
       @search="searchFn"
       @addEvent="addFn"
+      ref="head"
     ></CommonHeader>
     <!-- 总消息条数提示 -->
     <TotalCount :totalCount="counts"></TotalCount>
@@ -53,7 +54,7 @@
     <DirectoryDialog
       v-if="dialogVisible"
       :dialogVisible.sync="dialogVisible"
-      :tochange = 'toChangeData'
+      :tochange="toChangeData"
     ></DirectoryDialog>
   </el-card>
 </template>
@@ -63,7 +64,7 @@ import CommonHeader from "@/module-hmmm/components/CommonHeader";
 import TotalCount from "@/module-hmmm/components/TotalCount";
 import Pagination from "@/module-hmmm/components/Pagination";
 import DirectoryDialog from "@/module-hmmm/components/DirectoryDialog";
-import { list,changeState,remove } from "@/api/hmmm/directorys";
+import { list, changeState, remove } from "@/api/hmmm/directorys";
 import dayjs from "dayjs";
 export default {
   data() {
@@ -84,7 +85,14 @@ export default {
     DirectoryDialog,
   },
   created() {
-    this.getDirectorys();
+    // 判断是否有传参
+    if (this.$route.query.id) {
+      //有传参，从学科跳转过来的
+      this.fromSubject();
+    } else {
+      this.getDirectorys();
+    }
+    // this.fromSubject();
   },
   // 监测当前页数和页面大小的变化
   watch: {
@@ -104,6 +112,7 @@ export default {
       this.directoryData = data.items;
       this.counts = data.counts;
     },
+    // 时间数据格式化
     dateFormat(row, column) {
       let date = row[column.property];
       return dayjs(date).format("YYYY-MM-DD HH:mm:ss");
@@ -114,8 +123,8 @@ export default {
       if (val.state === "") {
         const { data } = await list({
           directoryName: val.name,
-          page: 1,
-          pagesize: 10,
+          page: this.page,
+          pagesize: this.pagesize,
         });
         this.directoryData = data.items;
         this.counts = data.counts;
@@ -126,8 +135,8 @@ export default {
       const { data } = await list({
         directoryName: val.name,
         state: val.state,
-        page: 1,
-        pagesize: 10,
+        page: this.page,
+        pagesize: this.pagesize,
       });
       this.directoryData = data.items;
       this.counts = data.counts;
@@ -149,14 +158,29 @@ export default {
       this.dialogVisible = true;
     },
     addFn() {
-      this.dialogVisible = true
-      this.toChangeData={}
+      this.dialogVisible = true;
+      this.toChangeData = {};
     },
     // 删除
     async deleteFn(row) {
       await remove(row);
       this.$message.success("删除成功");
       this.getDirectorys();
+    },
+    // 由学科页面跳转
+    async fromSubject() {
+      this.$refs.head.isFromSubject = true;
+      const subjectID = this.$route.query.id;
+      const subjectName = this.$route.query.subjectName;
+      // const subjectID = 7;
+      const { data } = await list({
+        subjectID,
+        subjectName,
+        page: this.page,
+        pagesize: this.pagesize,
+      });
+      this.directoryData = data.items;
+      this.counts = data.counts;
     },
   },
 };
