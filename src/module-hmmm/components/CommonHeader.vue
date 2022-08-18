@@ -26,11 +26,16 @@
           <el-button @click="clearFn">清除</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="$emit('search',formInline)">搜索</el-button>
+          <el-button type="primary" @click="$emit('search', formInline)"
+            >搜索</el-button
+          >
         </el-form-item>
       </el-form>
     </div>
     <div class="right">
+      <div class='back' v-show="isFromSubject" @click="$router.push('/subjects/list')">
+        <i class="el-icon-back"></i><span> 返回学科</span>
+      </div>
       <el-button type="success" @click="$emit('addEvent')">
         <i class="el-icon-edit"></i>
         新增目录</el-button
@@ -48,6 +53,7 @@ export default {
         name: "",
         state: "",
       },
+      isFromSubject:false,
       selectData: [
         {
           value: "启用",
@@ -80,9 +86,9 @@ export default {
 
   methods: {
     clearFn() {
-      this.formInline={}
-      this.$emit('clear',this.formInline)
-    }
+      this.formInline = {};
+      this.$emit("clear", this.formInline);
+    },
   },
 };
 </script>
@@ -111,6 +117,16 @@ export default {
   height: 32px;
   padding: 9px 15px;
   font-size: 12px;
+}
+.right {
+  display: flex;
+  .back {
+  font-size: 14px;
+  color: #409eff;
+  margin-right: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+}
 }
 ::v-deep .el-form-item__content {
   .el-input__inner {

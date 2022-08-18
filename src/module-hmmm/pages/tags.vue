@@ -4,6 +4,7 @@
     <CommonHeader
       @search="searchFn"
       @addEvent="addFn"
+      ref="head"
     ></CommonHeader>
     <!-- 总消息条数提示 -->
     <TotalCount :totalCount="counts"></TotalCount>
@@ -25,8 +26,18 @@
           <el-button type="text" @click="changeState(row)">{{
             row.state === 0 ? "启用" : "禁用"
           }}</el-button>
-          <el-button type="text" :disabled="row.state === 1"  @click="changeTags(row)">修改</el-button>
-          <el-button type="text" :disabled="row.state === 1" @click="deleteFn(row)">删除</el-button>
+          <el-button
+            type="text"
+            :disabled="row.state === 1"
+            @click="changeTags(row)"
+            >修改</el-button
+          >
+          <el-button
+            type="text"
+            :disabled="row.state === 1"
+            @click="deleteFn(row)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -40,9 +51,9 @@
 
     <!-- 弹出框 -->
     <TagsDialog
-       v-if="dialogVisible"
+      v-if="dialogVisible"
       :dialogVisible.sync="dialogVisible"
-      :tochange = 'toChangeData'
+      :tochange="toChangeData"
     ></TagsDialog>
   </el-card>
 </template>
@@ -52,7 +63,7 @@ import CommonHeader from "@/module-hmmm/components/CommonHeader";
 import TotalCount from "@/module-hmmm/components/TotalCount";
 import Pagination from "@/module-hmmm/components/Pagination";
 import TagsDialog from "@/module-hmmm/components/TagsDialog";
-import { list,changeState,remove  } from "@/api/hmmm/tags";
+import { list, changeState, remove } from "@/api/hmmm/tags";
 import dayjs from "dayjs";
 export default {
   data() {
@@ -70,10 +81,19 @@ export default {
     CommonHeader,
     TotalCount,
     Pagination,
-    TagsDialog
+    TagsDialog,
   },
   created() {
-    this.getTags();
+    this.$nextTick(() => {
+      // 判断是否有传参
+      if (this.$route.query.id) {
+        //有传参，从学科跳转过来的
+        this.$refs.head.isFromSubject = true;
+        this.fromSubject();
+      } else {
+        this.getTags();
+      }
+    });
   },
   // 监测当前页数和页面大小的变化
   watch: {
@@ -88,7 +108,6 @@ export default {
     // 获取学科目录数据
     async getTags() {
       const { data } = await list({ page: this.page, pagesize: this.pagesize });
-      // console.log(data);
       this.tagsData = data.items;
       this.counts = data.counts;
     },
@@ -131,20 +150,31 @@ export default {
       await changeState(row);
       this.$message.success("标签状态修改成功");
     },
-     // 标签修改
+    // 标签修改
     async changeTags(row) {
       this.toChangeData = row;
       this.dialogVisible = true;
     },
-     addFn() {
-      this.dialogVisible = true
-      this.toChangeData={}
+    addFn() {
+      this.dialogVisible = true;
+      this.toChangeData = {};
     },
     // 删除
     async deleteFn(row) {
       await remove(row);
       this.$message.success("删除成功");
       this.getTags();
+    },
+    // 由学科页面跳转
+    async fromSubject() {
+      const subjectID = this.$route.query.id;
+      const { data } = await list({
+        subjectID,
+        page: this.page,
+        pagesize: this.pagesize,
+      });
+      this.tagsData = data.items;
+      this.counts = data.counts;
     },
   },
 };
