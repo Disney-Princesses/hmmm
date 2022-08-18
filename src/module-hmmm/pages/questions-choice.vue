@@ -296,7 +296,7 @@ export default {
         { label: "审核状态", key: "chkState", width: "150px" },
         { label: "审核意见", key: "chkRemarks", width: "150px" },
         { label: "审核人", key: "chkUser", width: "150px" },
-        { label: "发布状态", key: "publishState", width: "150px" },
+        { label: "发布状态", key: "publishType", width: "150px" },
       ],
 
       tableDate: [],
@@ -392,14 +392,14 @@ export default {
       // 处理数据
 
       this.tableDate.forEach((item) => {
-        // // // 发布状态
-        // if (item.chkState == 1 && item.publishState == 0) {
-        //   item.publishState = "已下架";
-        // } else if (item.chkState == 1 && item.publishState == 1) {
-        //   item.publishState = "已发布";
-        // } else {
-        //   item.publishState = "待发布";
-        // }
+        // // 发布状态
+        if (item.chkState == 1 && item.publishState == 0) {
+          item.publishType = "已下架";
+        } else if (item.chkState == 1 && item.publishState == 1) {
+          item.publishType = "已发布";
+        } else {
+          item.publishType = "待发布";
+        }
 
         // 审核状态
         if (item.chkState == 0) {
