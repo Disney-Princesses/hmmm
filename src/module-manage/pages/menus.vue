@@ -29,6 +29,7 @@ export default {
 
   methods: {
     isShowMenus() {
+      this.$refs.mentusTable.text = "创建菜单";
       this.$refs.mentusTable.dialogFormVisible = true;
     },
   },
