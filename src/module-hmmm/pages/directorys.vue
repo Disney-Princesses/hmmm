@@ -85,19 +85,20 @@ export default {
     DirectoryDialog,
   },
   created() {
-    // 判断是否有传参
-    if (this.$route.query.id) {
-      //有传参，从学科跳转过来的
-      this.fromSubject();
-    } else {
-      this.getDirectorys();
-    }
-    // this.fromSubject();
+    this.$nextTick(() => {
+      // 判断是否有传参
+      if (this.$route.query.id) {
+        //有传参，从学科跳转过来的
+        this.$refs.head.isFromSubject = true;
+        this.fromSubject();
+      } else {
+        this.getDirectorys();
+      }
+    });
   },
   // 监测当前页数和页面大小的变化
   watch: {
     page(newval) {
-      // console.log(newval);
       this.getDirectorys();
     },
     pagesize() {
@@ -108,7 +109,6 @@ export default {
     // 获取学科目录数据
     async getDirectorys() {
       const { data } = await list({ page: this.page, pagesize: this.pagesize });
-      // console.log(data);
       this.directoryData = data.items;
       this.counts = data.counts;
     },
@@ -169,13 +169,9 @@ export default {
     },
     // 由学科页面跳转
     async fromSubject() {
-      this.$refs.head.isFromSubject = true;
       const subjectID = this.$route.query.id;
-      const subjectName = this.$route.query.subjectName;
-      // const subjectID = 7;
       const { data } = await list({
         subjectID,
-        subjectName,
         page: this.page,
         pagesize: this.pagesize,
       });

@@ -33,8 +33,8 @@
       </el-form>
     </div>
     <div class="right">
-      <div class='back' v-if="isFromSubject" @click="$router.push('/subjects/list')">
-        <i class="el-icon-back"></i><sapn> 返回学科</sapn>
+      <div class='back' v-show="isFromSubject" @click="$router.push('/subjects/list')">
+        <i class="el-icon-back"></i><span> 返回学科</span>
       </div>
       <el-button type="success" @click="$emit('addEvent')">
         <i class="el-icon-edit"></i>
