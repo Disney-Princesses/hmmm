@@ -34,7 +34,7 @@
               :key="items.id"
               :label="items.title"
               :disabled="type === 'points' && !!items.childs"
-              :class="'moveIn' + items.layer"
+              :style="{ marginLeft: (items.layer + 1) * 14 + 'px' }"
             >
             </el-option>
           </el-select>
@@ -192,12 +192,19 @@ export default {
       var changeAray = (oldArray) => {
         for (var i = 0; i < oldArray.length; i++) {
           // 数据没有code并且没有子元素时
+          if (oldArray[i].is_point) {
+            continue;
+          }
           if (oldArray[i].code !== undefined) {
+            console.log(oldArray[i]);
             _this.notPointDataList.push(oldArray[i]);
           }
           // 数据有子元素时
           if (oldArray[i].childs && oldArray[i].childs.length > 0) {
             changeAray(oldArray[i].childs);
+          }
+          if (oldArray[i].points && oldArray[i].points.length > 0) {
+            changeAray(oldArray[i].points);
           }
         }
       };
@@ -284,16 +291,48 @@ export default {
       }
     },
     // 表单详情
-    dataRest(obj) {
-      for (var i = 0; i < obj.length; i++) {
-        if (obj[i].childs && obj[i].childs.length > 0) {
-          for (var j = 0; j < obj[i].childs.length; j++) {
-            this.$set(obj[i].childs[j], "layer", 1);
-          }
-        }
+    // dataRest(obj) {
+    //   for (var i = 0; i < obj.length; i++) {
+    //     if (obj[i].childs && obj[i].childs.length > 0) {
+    //       for (var j = 0; j < obj[i].childs.length; j++) {
+    //         this.$set(obj[i].childs[j], "layer", 1);
+    //       }
+    //     }
+    //     this.$set(obj[i], "layer", 0);
+    //   }
 
-        this.$set(obj[i], "layer", 0);
-      }
+    //   // for (var i = 0; i < obj.length; i++) {
+    //   //   const setnum = (arr, i) => {
+    //   //     for (var j = 0; j < arr.childs.length; j++) {
+    //   //       this.$set(arr.childs[j], "layer", i);
+    //   //     }
+    //   //   };
+    //   //   if (obj[i].childs && obj[i].childs.length > 0) {
+    //   //     let i = 0;
+    //   //     i++;
+    //   //     setnum(obj[i], i);
+    //   //   }
+    //   //   this.$set(obj[i], "layer", 0);
+    //   // }
+    //   // console.log(obj);
+    // },
+    dataRest(obj) {
+      // for (var i = 0; i < obj.length; i++) { //   if (obj[i].childs && obj[i].childs.length > 0) { //     for (var j = 0; j < obj[i].childs.length; j++) { //       this.$set(obj[i].childs[j], "layer", 1); //     } //   } //   this.$set(obj[i], "layer", 0); // }
+      const menusCheck = (obj, layer) => {
+        obj.forEach((item) => {
+          this.$set(item, "layer", layer); // console.log(item);
+          if (item.childs && item.childs.length > 0) {
+            // console.log(item);
+            let level = layer + 1; // item.childs.forEach((item) => { //   this.$set(item, "layer", layer); // });
+            menusCheck(item.childs, level);
+          } else if (item.points && item.points.length > 0) {
+            // 菜单下有权限点
+            let level = layer + 1;
+            menusCheck(item.points, level);
+          }
+        });
+      };
+      menusCheck(obj, 0);
     },
     hanldeEditForm(objeditId, is_point) {
       // 为权限点
@@ -364,6 +403,9 @@ export default {
 
 .moveIn1 {
   text-indent: 28px;
+}
+.moveIn2 {
+  text-indent: 42px;
 }
 </style>
 <style scoped lang="scss">
