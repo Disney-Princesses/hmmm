@@ -204,6 +204,7 @@ export default {
         shortName: "", //企业简称
         state: "", // 状态
       };
+      this.cityList = []
     },
 
     //新增按钮

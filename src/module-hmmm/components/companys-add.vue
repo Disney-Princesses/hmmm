@@ -129,6 +129,7 @@ export default {
         tags: "",
         remarks: "",
       };
+      this.citySelect.cityDate = []
       this.$refs.dataForm.resetFields();
     },
     // 弹层显示
