@@ -3,6 +3,7 @@
     <!-- 头部搜索 -->
     <el-row class="headerRow">
       <el-col class="headerCol">
+        <el-col>吴开维</el-col>
         <el-button
           type="success"
           icon="el-icon-edit"
@@ -29,6 +30,7 @@ export default {
 
   methods: {
     isShowMenus() {
+      this.$refs.mentusTable.text = "创建菜单";
       this.$refs.mentusTable.dialogFormVisible = true;
     },
   },

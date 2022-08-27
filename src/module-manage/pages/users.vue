@@ -24,7 +24,7 @@
         </el-form>
       </div>
       <el-alert type="info" show-icon :closable="false">
-        <template #title> 共{{ total }}条记录 </template>
+        <template #title> 共{{ total }}条记录（田冰瑶） </template>
       </el-alert>
       <div class="userTable">
         <el-table :data="tableData" style="width: 100%">
@@ -181,13 +181,13 @@ export default {
     newDataes(data) {
       this.$refs.UserDetial.dialogFormH();
       this.$refs.UserDetial.onClose();
+      this.getUserList();
     },
     // 新增用户
     addUser() {
       this.formBase = { ...this.formBase, password: "", avatar: "" };
       this.getPermissionList();
       this.$refs.UserDetial.dialogFormV();
-      this.getUserList();
     },
     // 删除用户
     deleteUser(val) {

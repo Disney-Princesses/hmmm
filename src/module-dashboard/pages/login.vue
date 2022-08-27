@@ -110,6 +110,7 @@ export default {
       }
     },
     handleLogin() {
+      console.log(456);
       this.$refs.loginForm.validate(async (valid) => {
         if (valid) {
           this.loading = true;
@@ -121,7 +122,7 @@ export default {
                 .digest("hex"),
             })
             .then(async () => {
-              await this.$router.push({ path: "/" });
+              await this.$router.push("/dashboard");
               this.loading = false;
             })
             .catch(() => {

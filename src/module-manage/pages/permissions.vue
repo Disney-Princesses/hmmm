@@ -35,7 +35,7 @@
     </el-row>
     <!-- 警告 -->
     <el-alert
-      :title="`共条${counts}记录`"
+      :title="`共条${counts}记录 (吴开维)`"
       type="info"
       show-icon
       :closable="false"

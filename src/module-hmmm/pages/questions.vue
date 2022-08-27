@@ -2,7 +2,7 @@
   <div class="container">
     <el-card class="box-card">
       <div class="btn-wrapper">
-        <span class="tips">说明：目前支持学科和关键字条件筛选</span>
+        <span class="tips">说明：目前支持学科和关键字条件筛选（田冰瑶）</span>
         <el-button type="success" size="small">
           <i class="el-icon-edit"></i>
           <span @click="$router.push('/questions/new')">新增试题</span>
