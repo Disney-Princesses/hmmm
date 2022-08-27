@@ -196,7 +196,7 @@ export default {
             continue;
           }
           if (oldArray[i].code !== undefined) {
-            console.log(oldArray[i]);
+            //console.log(oldArray[i]);
             _this.notPointDataList.push(oldArray[i]);
           }
           // 数据有子元素时
@@ -314,15 +314,15 @@ export default {
     //   //   }
     //   //   this.$set(obj[i], "layer", 0);
     //   // }
-    //   // console.log(obj);
+    //   // //console.log(obj);
     // },
     dataRest(obj) {
       // for (var i = 0; i < obj.length; i++) { //   if (obj[i].childs && obj[i].childs.length > 0) { //     for (var j = 0; j < obj[i].childs.length; j++) { //       this.$set(obj[i].childs[j], "layer", 1); //     } //   } //   this.$set(obj[i], "layer", 0); // }
       const menusCheck = (obj, layer) => {
         obj.forEach((item) => {
-          this.$set(item, "layer", layer); // console.log(item);
+          this.$set(item, "layer", layer); // //console.log(item);
           if (item.childs && item.childs.length > 0) {
-            // console.log(item);
+            // //console.log(item);
             let level = layer + 1; // item.childs.forEach((item) => { //   this.$set(item, "layer", layer); // });
             menusCheck(item.childs, level);
           } else if (item.points && item.points.length > 0) {

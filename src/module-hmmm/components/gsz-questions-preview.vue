@@ -124,10 +124,10 @@ export default {
     },
   },
   created() {
-    console.log(this.detailInfo);
+    //console.log(this.detailInfo);
   },
   mounted() {
-    console.log(this.detailInfo);
+    //console.log(this.detailInfo);
   },
   computed: {
     questionType() {

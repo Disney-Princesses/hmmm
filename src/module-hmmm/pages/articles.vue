@@ -137,7 +137,7 @@ export default {
     // 获取文章列表数据
     async getArticles() {
       const { data } = await list({ page: this.page, pagesize: this.pagesize });
-      // console.log(data);
+      // //console.log(data);
       this.articleData = data.items;
       this.counts = data.counts;
     },
@@ -148,7 +148,7 @@ export default {
     },
     // 搜索
     async searchFn(val) {
-      console.log(val);
+      //console.log(val);
       if (val.state === "") {
         const { data } = await list({
           keyword: val.name,
@@ -172,7 +172,7 @@ export default {
     },
     // 状态修改
     async changeState(row) {
-      // console.log(row);
+      // //console.log(row);
       if (row.state === 0) {
         row.state = 1;
       } else if (row.state === 1) {
@@ -191,7 +191,7 @@ export default {
       })
         .then(() => {
           remove(row);
-          console.log(row);
+          //console.log(row);
           this.$message.success("删除成功");
           this.delDialogVisible = false;
           this.getArticles();
@@ -210,7 +210,7 @@ export default {
     },
     // 点击图标显示视频
     showVideo(video) {
-      console.log(video);
+      //console.log(video);
       const mask = document.getElementById("mask");
       mask.style.display = "block";
       this.videoUrl = video;
@@ -221,7 +221,7 @@ export default {
     },
     // 点击预览
     previewFn(row) {
-      // console.log(row);
+      // //console.log(row);
       // const { data } = await detail(row);
       this.previewDialog = true;
       this.currentRow = row;

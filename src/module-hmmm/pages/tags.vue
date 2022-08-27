@@ -117,7 +117,7 @@ export default {
     },
     // 搜索
     async searchFn(val) {
-      console.log(val);
+      //console.log(val);
       if (val.state === "") {
         const { data } = await list({
           tagName: val.name,
@@ -141,7 +141,7 @@ export default {
     },
     // 状态修改
     async changeState(row) {
-      console.log(row);
+      //console.log(row);
       if (row.state === 0) {
         row.state = 1;
       } else if (row.state === 1) {

@@ -165,7 +165,7 @@ export default {
     async getUserDetail(id) {
       const { data } = await getUserDetailApi(id);
       this.formBase = { ...data, sex: "1" };
-      // console.log(this.formBase);
+      // //console.log(this.formBase);
     },
     // 获取权限名称列表
     async getPermissionList() {

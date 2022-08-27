@@ -169,13 +169,13 @@ export default {
           formObj[key] = this.formData[key];
         }
       }
-      // console.log(formObj);
+      // //console.log(formObj);
       const { data } = await getCompanyListApi({
         page: this.page,
         pagesize: this.pagesize,
         ...formObj,
       });
-      // console.log(data);
+      // //console.log(data);
       this.count = data.counts;
       this.tableData = data.items;
       this.loading = false;
@@ -218,7 +218,7 @@ export default {
 
     // 修改
     editCompany(val) {
-      // console.log(val);
+      // //console.log(val);
       this.titleInfoText = "编辑";
       this.$refs.companysAdd.dialogFormV();
       this.$refs.companysAdd.formBase = JSON.parse(JSON.stringify(val));

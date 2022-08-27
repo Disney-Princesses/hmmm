@@ -71,7 +71,7 @@ export default {
       this.ProcessData(this.tableData);
     },
     click(data) {
-      console.log(data);
+      //console.log(data);
     },
     ProcessData(data) {
       data.forEach((item) => {
@@ -94,13 +94,13 @@ export default {
               }
             });
           } catch (error) {
-            // console.log(error);
+            // //console.log(error);
           }
           this.ProcessData(item.childs);
         }
       });
-      // console.log(this.tableData);
-      // console.log(JSON.stringify(this.tableData).replace(/points/gi, "childs"));
+      // //console.log(this.tableData);
+      // //console.log(JSON.stringify(this.tableData).replace(/points/gi, "childs"));
     },
     removeFn(row) {
       this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {

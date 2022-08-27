@@ -55,7 +55,7 @@ export default {
       this.$emit("update:chkVisible", false);
     },
     async onSubmit() {
-      // console.log(this.form);
+      // //console.log(this.form);
       if (this.form.chkRemarks.trim().length === 0) {
         return this.$message.error("请输入审核意见");
       }
@@ -63,7 +63,7 @@ export default {
       await choiceCheck(this.form);
       this.$message.success("操作成功");
       this.onClose();
-      this.$emit('getchoiceList')
+      this.$emit("getchoiceList");
     },
   },
 };

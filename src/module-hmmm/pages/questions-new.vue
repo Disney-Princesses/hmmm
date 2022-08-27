@@ -363,9 +363,7 @@ export default {
         answer: [
           { required: true, message: "请输入答案解析", trigger: "blur" },
         ],
-        tags:[
-          { required: true, message: "请选择", trigger: "blur" },
-        ],
+        tags: [{ required: true, message: "请选择", trigger: "blur" }],
       },
       simpleSubjectsList: [], // 简单学科列表
       simpleDirectoryList: [], // 简单目录列表
@@ -391,7 +389,7 @@ export default {
     // 获取简单学科列表
     async getSimpleSubjectsList() {
       const { data } = await simpleSubjects();
-      // console.log(data);
+      // //console.log(data);
       this.simpleSubjectsList = data;
     },
 
@@ -400,7 +398,7 @@ export default {
       const { data } = await simpleDirectory({
         subjectID: this.formData.subjectID,
       });
-      // console.log(data);
+      // //console.log(data);
       this.simpleDirectoryList = data;
       this.formData.catalogID = "";
     },
@@ -409,7 +407,7 @@ export default {
       const { data } = await getCompanyListApi({
         pagesize: 10000,
       });
-      console.log(data);
+      //console.log(data);
       this.companyList = data.items;
     },
 
@@ -437,13 +435,13 @@ export default {
         pagesize: 10000,
         subjectID: this.formData.subjectID,
       });
-      // console.log(data);
+      // //console.log(data);
       this.simpleTagsList = data;
     },
 
     // 图片上传前处理
     beforeAvatarUpload(file) {
-      console.log(file);
+      //console.log(file);
       const types = ["image/jpeg", "image/png", "image/gif", "image/jpg"];
       if (!types.includes(file.type)) {
         this.$message.error("请上传" + types.join("或") + "类型的图片");
@@ -459,7 +457,7 @@ export default {
 
     // 上传图片完成的处理
     handleAvatarSuccess(res, file) {
-      console.log(file);
+      //console.log(file);
     },
 
     // 图片点击获取索引
@@ -479,7 +477,7 @@ export default {
           StorageClass: "STANDARD",
           Body: file, // 上传文件对象
           onProgress: function (progressData) {
-            console.log(JSON.stringify(progressData));
+            //console.log(JSON.stringify(progressData));
           },
         },
         (err, data) => {
@@ -487,7 +485,7 @@ export default {
           if (err || data.statusCode !== 200) {
             return this.$message.error("亲，上传失败，请重试");
           }
-          // console.log('https://' + data.Location);
+          // //console.log('https://' + data.Location);
           this.formData.options.forEach((item, index) => {
             if (index === this.imgIndex) {
               item.img = "https://" + data.Location;
@@ -539,7 +537,7 @@ export default {
           this.$message.success("修改成功");
         } else {
           await addQuestions(formObj);
-          // console.log(res);
+          // //console.log(res);
           this.$router.push("/questions/list");
           this.$message.success("添加成功");
           this.formData = {
@@ -574,7 +572,7 @@ export default {
     async getTopicDetail() {
       if (this.$route.query.id) {
         const { data } = await topicDetailApi({ id: this.$route.query.id });
-        console.log(data);
+        //console.log(data);
         data.difficulty = data.difficulty - 0;
         data.questionType = data.questionType - 0;
         data.tags = data.tags.split(",");

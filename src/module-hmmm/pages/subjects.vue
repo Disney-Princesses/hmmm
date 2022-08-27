@@ -161,7 +161,7 @@ export default {
         pagesize: this.pagesize,
         subjectName: this.subjectName,
       });
-      // console.log(res);
+      // //console.log(res);
       this.tableDate = res.data.items;
       this.objData = res.data;
     },
@@ -262,7 +262,7 @@ export default {
     },
     // 跳转学科目录
     classClick(scope) {
-      // console.log(scope);
+      // //console.log(scope);
       this.$router.push({
         path: "/subjects/directorys",
         query: {

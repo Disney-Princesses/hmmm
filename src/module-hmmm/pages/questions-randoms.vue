@@ -149,28 +149,28 @@ export default {
         keyword: this.input,
       });
 
-      // console.log(res.data.items);
+      // //console.log(res.data.items);
       this.objData = res.data;
       this.tableDate = res.data.items;
     },
     // 删除
     async delClick(scope) {
-      // console.log(scope.row);
+      // //console.log(scope.row);
       await removeRandomsApi(scope.row);
       this.$message.success("删除成功");
       this.getRandomsListApi();
     },
     // 设置数据格式
     formatter(row, column, cellValue, index) {
-      // console.log( cellValue);
+      // //console.log( cellValue);
       if (column.label === "题型") {
-        // console.log(column);
+        // //console.log(column);
 
         const findItem = questionType.find((item) => item.value == cellValue);
         return findItem.label;
       }
       if (column.label == "录入时间") {
-        // console.log( row);
+        // //console.log( row);
 
         return dayjs(row.addTime).format("YYYY-MM-DD HH:mm:ss");
       }
@@ -180,7 +180,7 @@ export default {
     async showDialog(item) {
       const res = await detailApi(item);
       this.detailInfo = res.data;
-      console.log(res);
+      //console.log(res);
       this.ispvwVisible = true;
     },
     // 分页
@@ -204,7 +204,7 @@ export default {
   },
   created() {
     this.getRandomsListApi();
-    console.log();
+    //console.log();
   },
   components: {
     gszPageTools,

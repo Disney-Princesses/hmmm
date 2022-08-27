@@ -110,7 +110,7 @@ export default {
       }
     },
     handleLogin() {
-      console.log(456);
+      //console.log(456);
       this.$refs.loginForm.validate(async (valid) => {
         if (valid) {
           this.loading = true;
@@ -129,7 +129,7 @@ export default {
               this.loading = false;
             });
         } else {
-          // console.log('error submit!!')
+          // //console.log('error submit!!')
           return false;
         }
       });

@@ -98,7 +98,7 @@ export default {
         for (const it of nodes) {
           const node = createNode(it);
           // 标记选中
-          // console.log(node.checked)
+          // //console.log(node.checked)
           if (node.checked) {
             parentNode.selected = true;
           }

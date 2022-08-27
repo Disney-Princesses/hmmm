@@ -121,11 +121,11 @@ export default {
   methods: {
     // 上传图片的处理
     handleImageAdded: function (file, Editor, cursorLocation, reseter) {
-      // console.log(file);
-      // console.log('upload image');
+      // //console.log(file);
+      // //console.log('upload image');
       const formData = new FormData();
       formData.append("image", file.File);
-      // console.log(formData);
+      // //console.log(formData);
       //   $http
       //     .post(this.$common.baseUrl + "upload/image", formData)
       //     .then((res) => {
