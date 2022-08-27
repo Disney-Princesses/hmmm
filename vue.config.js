@@ -18,6 +18,10 @@ module.exports = {
   productionSourceMap: false,
   publicPath: "./",
   productionSourceMap: false,
+  configureWebpack: {
+    // 排除 elementUI xlsx  和 vue
+    externals,
+  },
   chainWebpack: (config) => {
     const svgRule = config.module.rule("svg");
     svgRule.uses.clear();
@@ -30,8 +34,7 @@ module.exports = {
       .options({
         symbolId: "icon-[name]",
       });
-    // 排除 elementUI xlsx  和 vue
-    externals;
+
     // cdn资源
     config.plugin("html").tap((args) => {
       args[0].myEnv = process.env.NODE_ENV;
