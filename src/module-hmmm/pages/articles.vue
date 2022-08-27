@@ -82,7 +82,12 @@
         <i class="el-icon-close"></i>
       </div>
       <div class="video-play">
-        <video :src="videoUrl" autoplay width="100%"></video>
+        <video
+          :src="videoUrl"
+          controls="controls"
+          autoplay
+          width="100%"
+        ></video>
       </div>
     </div>
   </div>
