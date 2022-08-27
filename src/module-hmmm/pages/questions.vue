@@ -3,9 +3,13 @@
     <el-card class="box-card">
       <div class="btn-wrapper">
         <span class="tips">说明：目前支持学科和关键字条件筛选</span>
-        <el-button type="success" size="small">
+        <el-button
+          type="success"
+          size="small"
+          @click="$router.push('/questions/new')"
+        >
           <i class="el-icon-edit"></i>
-          <span @click="$router.push('/questions/new')">新增试题</span>
+          <span>新增试题</span>
         </el-button>
       </div>
       <div class="searchForm">
@@ -550,6 +554,8 @@ export default {
         // 城市
         city: "",
       };
+      this.directoryList = [];
+      this.tagsList = [];
     },
     // 获取学科简单列表
     async getSubjectList() {
@@ -558,7 +564,7 @@ export default {
     },
     // 处理获取回来的学科数据
     handleSubject(val) {
-      return this.subjectList.find((item) => item.value === val).label;
+      return this.subjectList.find((item) => item.value === val)?.label;
     },
     // 处理获取回来的题型数据
     handleQuestionType(val) {

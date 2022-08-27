@@ -181,6 +181,14 @@ export default {
     newDataes(data) {
       this.$refs.UserDetial.dialogFormH();
       this.$refs.UserDetial.onClose();
+      this.formBase = {
+        username: "",
+        email: "",
+        role: "",
+        permission_group_id: "",
+        phone: "",
+        sex: "1",
+      };
       this.getUserList();
     },
     // 新增用户
