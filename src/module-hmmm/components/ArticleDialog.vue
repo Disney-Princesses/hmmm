@@ -40,6 +40,7 @@
 <script>
 // import VueEditor from "vue-word-editor";
 // import "quill/dist/quill.snow.css";
+// import hljs from "highlight.js";
 import { VueEditor } from "vue2-editor";
 import { add, update } from "@/api/hmmm/articles";
 export default {
@@ -67,7 +68,7 @@ export default {
         ],
       },
       selectData: [],
-      //   富文本框工具配置
+      // 富文本框工具配置
       customToolbar: [
         ["bold", "italic", "underline", "strike"],
 
@@ -84,6 +85,11 @@ export default {
         ["image"],
         ["link"],
       ],
+      // syntax: {
+      //   highlight: (text) => {
+      //     return hljs.highlightAuto(text).value; // 这里就是代码高亮需要配置的地方
+      //   },
+      // },
     };
   },
   props: {
@@ -115,22 +121,22 @@ export default {
   methods: {
     // 上传图片的处理
     handleImageAdded: function (file, Editor, cursorLocation, reseter) {
-        console.log(file);
-        // console.log('upload image');
-    //   var formData = new FormData();
-    //   formData.append("image", file);
-    //   console.log(formData);
-    //   $http
-    //     .post(this.$common.baseUrl + "upload/image", formData)
-    //     .then((res) => {
-    //       let data = res.body;
-    //       if (data.code == 200) {
-    //         let url = data.data.url;
-    //         Editor.insertEmbed(cursorLocation, "image", url);
-    //         resetUploader();
-    //       } else {
-    //       }
-    //     });
+      // console.log(file);
+      // console.log('upload image');
+      const formData = new FormData();
+      formData.append("image", file.File);
+      // console.log(formData);
+      //   $http
+      //     .post(this.$common.baseUrl + "upload/image", formData)
+      //     .then((res) => {
+      //       let data = res.body;
+      //       if (data.code == 200) {
+      //         let url = data.data.url;
+      //         Editor.insertEmbed(cursorLocation, "image", url);
+      //         resetUploader();
+      //       } else {
+      //       }
+      //     });
     },
     // 关闭时清空表单
     closeFn() {
@@ -149,12 +155,12 @@ export default {
         // 修改
         this.form.id = this.tochange.id;
         await update(this.form);
-        this.closeFn()
+        this.closeFn();
         this.$message.success("修改文章成功");
       } else {
         // 新增
         await add(this.form);
-        this.closeFn()
+        this.closeFn();
         this.$message.success("添加成功");
       }
       this.$parent.$options.parent.getArticles();

@@ -245,6 +245,9 @@
               style="width: 400px"
               v-model="formData.tags"
               multiple
+              filterable
+              default-first-option
+              allow-create
             >
               <el-option
                 v-for="item in simpleTagsList"
@@ -273,6 +276,9 @@ import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
 import { quillEditor } from "vue-quill-editor";
+// 代码块高亮
+import hljs from "highlight.js";
+import "highlight.js/styles/monokai-sublime.css";
 import COS from "cos-js-sdk-v5";
 var cos = new COS({
   SecretId: "AKIDnRt75qSqytZBdqmTuFRQClAML6ez66uU",
@@ -305,6 +311,11 @@ export default {
             ["blockquote", "code-block"], // 引用代码块
             ["image", "link"], // 上传图片、上传视频
           ],
+          syntax: {
+            highlight: (text) => {
+              return hljs.highlightAuto(text).value; // 这里就是代码高亮需要配置的地方
+            },
+          },
         },
       },
       formData: {
@@ -352,6 +363,9 @@ export default {
         answer: [
           { required: true, message: "请输入答案解析", trigger: "blur" },
         ],
+        tags:[
+          { required: true, message: "请选择", trigger: "blur" },
+        ],
       },
       simpleSubjectsList: [], // 简单学科列表
       simpleDirectoryList: [], // 简单目录列表
@@ -373,7 +387,6 @@ export default {
     };
   },
 
-  
   methods: {
     // 获取简单学科列表
     async getSimpleSubjectsList() {

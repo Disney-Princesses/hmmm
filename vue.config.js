@@ -16,6 +16,8 @@ module.exports = {
   lintOnSave: false,
   publicPath: "./",
   productionSourceMap: false,
+  publicPath: "./",
+  productionSourceMap: false,
   chainWebpack: (config) => {
     const svgRule = config.module.rule("svg");
     svgRule.uses.clear();

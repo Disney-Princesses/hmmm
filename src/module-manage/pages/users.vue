@@ -24,7 +24,7 @@
         </el-form>
       </div>
       <el-alert type="info" show-icon :closable="false">
-        <template #title> 共{{ total }}条记录 </template>
+        <template #title> 共{{ total }}条记录（田冰瑶） </template>
       </el-alert>
       <div class="userTable">
         <el-table :data="tableData" style="width: 100%">

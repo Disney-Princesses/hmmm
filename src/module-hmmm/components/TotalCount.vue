@@ -1,36 +1,29 @@
 <template>
   <el-alert
-    :title='`数据一共${totalCount}条`'
+    :title="`数据一共${totalCount}条（李梦廷）`"
     type="info"
     show-icon
-    :closable='false'>
+    :closable="false"
+  >
   </el-alert>
 </template>
 
 <script>
 export default {
-  data () {
-    return {
-
-    }
+  data() {
+    return {};
   },
-  props:{
-    totalCount:{
-        type:Number,
-        default:0
-    }
+  props: {
+    totalCount: {
+      type: Number,
+      default: 0,
+    },
   },
 
-  created () {
+  created() {},
 
-  },
-
-  methods: {
-
-  }
-}
+  methods: {},
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
