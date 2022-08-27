@@ -86,6 +86,15 @@ module.exports = {
       }); // https:// webpack.js.org/configuration/optimization/#optimizationruntimechunk
       config.optimization.runtimeChunk("single");
     });
+    // 图片处理
+    const imagesRule = config.module.rule("images");
+    imagesRule
+      .use("image-webpack-loader")
+      .loader("image-webpack-loader")
+      .options({
+        bypassOnDebug: true,
+      })
+      .end();
   },
   devServer: {
     port: 9898,
