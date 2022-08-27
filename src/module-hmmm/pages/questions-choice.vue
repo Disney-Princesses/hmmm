@@ -8,7 +8,11 @@
         </el-col>
         <el-col :span="12">
           <el-row type="flex" justify="end">
-            <el-button type="success" icon="el-icon-edit" size="small" @click="$router.push('/questions/new')"
+            <el-button
+              type="success"
+              icon="el-icon-edit"
+              size="small"
+              @click="$router.push('/questions/new')"
               >新增试题</el-button
             >
           </el-row>
@@ -267,6 +271,7 @@ import gszQuestionsCheck from "../components/gsz-questions-check .vue";
 import dayjs from "dayjs";
 
 export default {
+  name: "FFF",
   data() {
     return {
       activeName: "5",
@@ -344,10 +349,10 @@ export default {
       console.log(this.form.subject);
       this.form.catalogID = "";
       this.form.tags = "";
-      const res = await labelListApi({ subjectID: this.form.subject });
+      const res = await labelListApi({ subjectID: this.form.subjectID });
       // console.log(res);
       this.labelList = res.data;
-      const res1 = await subjectSListApi({ subjectID: this.form.subject });
+      const res1 = await subjectSListApi({ subjectID: this.form.subjectID });
       // console.log(res1);
       this.subjectSList = res1.data;
     },
@@ -368,6 +373,11 @@ export default {
         ctiy: "",
         area: "",
       };
+      // 清除按钮 同时清除标签和二级目录
+      this.form.catalogID = "";
+      this.form.tags = "";
+      this.labelList = [];
+      this.subjectSList = [];
     },
     // 提交搜索
     onSubmit() {
@@ -464,9 +474,9 @@ export default {
     editClick(scope) {
       console.log(scope);
       this.$router.push({
-        path:'/questions/new',
-        query:{id: scope.data.id}
-      })
+        path: "/questions/new",
+        query: { id: scope.data.id },
+      });
     },
     // 上下架
     async changeStateClick(scope) {
