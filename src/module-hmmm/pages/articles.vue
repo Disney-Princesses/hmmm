@@ -196,9 +196,7 @@ export default {
           this.delDialogVisible = false;
           this.getArticles();
         })
-        .catch(() => {
-          console.log(2);
-        });
+        .catch(() => {});
     },
     // 文章修改
     async changeArticles(row) {
