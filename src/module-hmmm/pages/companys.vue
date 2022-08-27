@@ -119,7 +119,11 @@
 import { provinces, citys } from "@/api/hmmm/citys";
 import { status } from "@/api/hmmm/constants";
 import CompanysTable from "../components/CompanysTable.vue";
-import { list as getCompanyListApi, disabled,remove as delCompanyApi } from "@/api/hmmm/companys";
+import {
+  list as getCompanyListApi,
+  disabled,
+  remove as delCompanyApi,
+} from "@/api/hmmm/companys";
 import CompanysAdd from "../components/companys-add.vue";
 export default {
   data() {
@@ -148,7 +152,6 @@ export default {
     this.provinceList = provinces();
     this.getCompanyList();
   },
-
 
   methods: {
     // 城市点击改变
@@ -204,7 +207,7 @@ export default {
         shortName: "", //企业简称
         state: "", // 状态
       };
-      this.cityList = []
+      this.cityList = [];
     },
 
     //新增按钮
@@ -242,7 +245,7 @@ export default {
             type: "success",
             message: `${state ? "禁用" : "启用"}成功!`,
           });
-          this.getCompanyList()
+          this.getCompanyList();
         })
         .catch(() => {
           this.$message({
@@ -253,27 +256,29 @@ export default {
     },
 
     // 删除公司
-    async delCompany(val){
-      let id = val.id
-      
-      this.$confirm('此操作将永久删除用户, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(async () => {
-          await delCompanyApi({id})
+    async delCompany(val) {
+      let id = val.id;
+
+      this.$confirm("此操作将永久删除用户, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(async () => {
+          await delCompanyApi({ id });
           this.$message({
-            type: 'success',
-            message: '删除成功!'
+            type: "success",
+            message: "删除成功!",
           });
-          this.getCompanyList()
-        }).catch(() => {
+          this.getCompanyList();
+        })
+        .catch(() => {
           this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });          
+            type: "info",
+            message: "已取消删除",
+          });
         });
-    }
+    },
   },
   components: {
     CompanysTable,
